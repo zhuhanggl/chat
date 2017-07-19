@@ -21,7 +21,7 @@ import java.util.List;
  * Created by Administrator on 2017/7/19.
  */
 
-public class FriendList extends Fragment {
+public class FriendList extends Fragment implements View.OnClickListener {
     private TextView accountText;
     private Button backMainActivity;
     private List<Friend> mFriendList=new ArrayList<>();
@@ -29,8 +29,11 @@ public class FriendList extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
         View view=inflater.inflate(R.layout.friend_choose,container,false);
-        accountText=(TextView)view.findViewById(R.id.account_text);
+        accountText=(TextView)view.findViewById(R.id.title_account_text);
         backMainActivity=(Button)view.findViewById(R.id.back_MainActivity);
+        backMainActivity.setOnClickListener(this);
+        FriendChoose friendChoose=(FriendChoose)getActivity();
+        accountText.setText(friendChoose.getAccount());
         FriendInit();
         RecyclerView recyclerView=(RecyclerView)view.findViewById(R.id.friend_recycler_view);
         LinearLayoutManager layoutManager=new LinearLayoutManager(getActivity());//这里有可能是个BUG
@@ -39,7 +42,14 @@ public class FriendList extends Fragment {
         recyclerView.setAdapter(friendAdapter);
         return view;
     }
-
+    @Override
+    public void onClick(View v){
+        switch (v.getId()) {
+            case R.id.back_MainActivity:
+                getActivity().finish();
+                break;
+        }
+    }
     private void FriendInit(){
         for (int i=0;i<2;i++){
             Friend apple=new Friend(R.drawable.apple_pic,"apple");

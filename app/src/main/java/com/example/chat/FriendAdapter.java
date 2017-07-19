@@ -1,5 +1,6 @@
 package com.example.chat;
 
+import android.content.Intent;
 import android.media.Image;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -19,8 +20,10 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
     static class ViewHolder extends RecyclerView.ViewHolder{
         ImageView AvatarId;
         TextView name;
+        View friendview;
         public ViewHolder(View view){
             super(view);
+            friendview=view;
             AvatarId=(ImageView)view.findViewById(R.id.friend_Avatar);
             name=(TextView)view.findViewById(R.id.friend_name);
         }
@@ -31,10 +34,23 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent,int viewType){
+    public ViewHolder onCreateViewHolder(final ViewGroup parent, int viewType){
         View view= LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.friend_item,parent,false);
-        ViewHolder viewholder=new ViewHolder(view);
+        final ViewHolder viewholder=new ViewHolder(view);
+        viewholder.friendview.setOnClickListener(new View.OnClickListener() {//item的宽度需要为matchparent
+            //这样点击空白的地方也可以开启活动
+            @Override
+            public void onClick(View view) {
+                int position=viewholder.getAdapterPosition();
+                Friend friend=mFriendList.get(position);
+                String friendName=friend.getName();
+                Intent intent=new Intent(parent.getContext(),ChatActivity.class);//这里关于怎么获取
+                // 上下文的方法要注意
+                intent.putExtra("friendName",friendName);
+                parent.getContext().startActivity(intent);
+            }
+        });
         return viewholder;
     }
     @Override

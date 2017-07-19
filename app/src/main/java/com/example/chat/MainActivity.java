@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 editor.apply();
                 if(account.equals("zhuhanggl")&&password.equals("19930307")) {//不能用==！！
                     Intent intent = new Intent(this, FriendChoose.class);
+                    intent.putExtra("titleAccount",account);
                     startActivity(intent);
                 }
                 break;

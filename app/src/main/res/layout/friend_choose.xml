@@ -10,12 +10,11 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary">
         <TextView
-            android:id="@+id/account_text"
+            android:id="@+id/title_account_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:textSize="20sp"
-            android:text="zzz"
             android:textColor="#fff"/>
         <Button
             android:id="@+id/back_MainActivity"
