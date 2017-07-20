@@ -21,7 +21,7 @@ import java.util.List;
  * Created by Administrator on 2017/7/19.
  */
 
-public class FriendList extends Fragment implements View.OnClickListener {
+public class FriendListFragment extends Fragment implements View.OnClickListener {
     private TextView accountText;
     private Button backMainActivity;
     private List<Friend> mFriendList=new ArrayList<>();
@@ -32,7 +32,7 @@ public class FriendList extends Fragment implements View.OnClickListener {
         accountText=(TextView)view.findViewById(R.id.title_account_text);
         backMainActivity=(Button)view.findViewById(R.id.back_MainActivity);
         backMainActivity.setOnClickListener(this);
-        FriendChoose friendChoose=(FriendChoose)getActivity();
+        FriendChooseActivity friendChoose=(FriendChooseActivity) getActivity();
         accountText.setText(friendChoose.getAccount());
         FriendInit();
         RecyclerView recyclerView=(RecyclerView)view.findViewById(R.id.friend_recycler_view);

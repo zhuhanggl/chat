@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
-public class FriendChoose extends AppCompatActivity {
+public class FriendChooseActivity extends AppCompatActivity {
     String account;
 
     @Override

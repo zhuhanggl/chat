@@ -9,6 +9,6 @@
         android:id="@+id/friend_list_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:name="com.example.chat.FriendList"/>
+        android:name="com.example.chat.FriendListFragment"/>
 
 </RelativeLayout>

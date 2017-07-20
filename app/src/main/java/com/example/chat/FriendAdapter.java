@@ -44,10 +44,9 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
             public void onClick(View view) {
                 int position=viewholder.getAdapterPosition();
                 Friend friend=mFriendList.get(position);
-                String friendName=friend.getName();
                 Intent intent=new Intent(parent.getContext(),ChatActivity.class);//这里关于怎么获取
                 // 上下文的方法要注意
-                intent.putExtra("friendName",friendName);
+                intent.putExtra("friend",friend);
                 parent.getContext().startActivity(intent);
             }
         });
