@@ -1,5 +1,6 @@
 package com.example.chat;
 
+import android.content.Context;
 import android.content.Intent;
 import android.media.Image;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 /**
@@ -17,6 +20,7 @@ import java.util.List;
 
 public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder> {
     private List<Friend> mFriendList;
+    private Context mContext;
     static class ViewHolder extends RecyclerView.ViewHolder{
         ImageView AvatarId;
         TextView name;
@@ -38,16 +42,19 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
         View view= LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.friend_item,parent,false);
         final ViewHolder viewholder=new ViewHolder(view);
+        if (mContext==null){
+            mContext=parent.getContext();
+        }
         viewholder.friendview.setOnClickListener(new View.OnClickListener() {//item的宽度需要为matchparent
             //这样点击空白的地方也可以开启活动
             @Override
             public void onClick(View view) {
-                int position=viewholder.getAdapterPosition();
+                int position=viewholder.getAdapterPosition();//这里获取位置的方法重要！！
                 Friend friend=mFriendList.get(position);
                 Intent intent=new Intent(parent.getContext(),ChatActivity.class);//这里关于怎么获取
                 // 上下文的方法要注意
                 intent.putExtra("friend",friend);
-                parent.getContext().startActivity(intent);
+                mContext.startActivity(intent);
             }
         });
         return viewholder;
@@ -55,7 +62,8 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
     @Override
     public void onBindViewHolder(ViewHolder viewHolder,int position){
         Friend friend=mFriendList.get(position);
-        viewHolder.AvatarId.setImageResource(friend.getAvatarId());
+        Glide.with(mContext).load("http://192.168.1.108/"+
+                friend.getFriendId()+"/"+friend.getAvatarId()+".png").into(viewHolder.AvatarId);
         viewHolder.name.setText(friend.getName());
     }
     @Override

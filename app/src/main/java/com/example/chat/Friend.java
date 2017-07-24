@@ -7,18 +7,28 @@ import java.io.Serializable;
  */
 
 public class Friend implements Serializable{
-    private int AvatarId;
+    private String FriendId;
+    private String AvatarId;
     private String name;
-    public Friend(int AvatarId,String name){
+    public Friend(String FriendId,String AvatarId,String name){
+        this.FriendId=FriendId;
         this.AvatarId=AvatarId;
         this.name=name;
     }
 
-    public int getAvatarId() {
+    public String getFriendId() {
+        return FriendId;
+    }
+
+    public void setFriendId(String friendId) {
+        FriendId = friendId;
+    }
+
+    public String getAvatarId() {
         return AvatarId;
     }
 
-    public void setAvatarId(int avatarId) {
+    public void setAvatarId(String avatarId) {
         AvatarId = avatarId;
     }
 
