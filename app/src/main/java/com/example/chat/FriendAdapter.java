@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.chat.gson.UserAccount;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ import java.util.List;
 public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder> {
     private List<Friend> mFriendList;
     private Context mContext;
+    private UserAccount userAccount;
     static class ViewHolder extends RecyclerView.ViewHolder{
         ImageView AvatarId;
         TextView name;
@@ -33,8 +35,9 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
         }
     }
 
-    public FriendAdapter(List<Friend> mFriendList){
+    public FriendAdapter(List<Friend> mFriendList,UserAccount userAccount){//可以用构造函数来实现与活动的交互
         this.mFriendList=mFriendList;
+        this.userAccount=userAccount;
     }
 
     @Override
@@ -54,6 +57,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
                 Intent intent=new Intent(parent.getContext(),ChatActivity.class);//这里关于怎么获取
                 // 上下文的方法要注意
                 intent.putExtra("friend",friend);
+                intent.putExtra("user",userAccount);
                 mContext.startActivity(intent);
             }
         });

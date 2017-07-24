@@ -12,6 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.chat.gson.UserAccount;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ import java.util.List;
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
     private List<Chat> mChatList;
     private Context mContext;
+    UserAccount userAccount;
     static class ViewHolder extends RecyclerView.ViewHolder{//viewholder相当于列表中对应的子项
         TextView friendName;
         ImageView friendAvatarId;
@@ -47,8 +49,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
         }
     }
 
-    public ChatAdapter(List<Chat> mChatList){
+    public ChatAdapter(List<Chat> mChatList, UserAccount userAccount){
         this.mChatList=mChatList;
+        this.userAccount=userAccount;
     }
 
     @Override
@@ -74,14 +77,15 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
         if (chat.getType()==Chat.TYPE_RECEIVED){
             viewHolder.friendName.setText(chat.getFriend().getName());
             Glide.with(mContext).load("http://192.168.1.108/"+chat.getFriend().getFriendId()
-                    +"/"+chat.getFriend().getAvatarId());
+                    +"/"+chat.getFriend().getAvatarId()+".png").into(viewHolder.friendAvatarId);
             //viewHolder.friendAvatarId.setImageResource(chat.getFriend().getAvatarId());
             viewHolder.leftLayout.setVisibility(View.VISIBLE);
             viewHolder.rightLayout.setVisibility(View.GONE);
             viewHolder.leftChat.setText(chat.getChatText());
         }else if(chat.getType()==Chat.TYPE_SENT){
-            viewHolder.meAvatarId.setImageResource(R.drawable.mango_pic);
-            viewHolder.meName.setText("zhuhanggl");
+            Glide.with(mContext).load("http://192.168.1.108/"+userAccount.getAvatar()+".png")
+                    .into(viewHolder.meAvatarId);
+            viewHolder.meName.setText(userAccount.getName());
             viewHolder.leftLayout.setVisibility(View.GONE);
             viewHolder.rightLayout.setVisibility(View.VISIBLE);
             viewHolder.rightChat.setText(chat.getChatText());

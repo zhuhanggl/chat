@@ -50,7 +50,7 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
         RecyclerView recyclerView=(RecyclerView)view.findViewById(R.id.friend_recycler_view);
         LinearLayoutManager layoutManager=new LinearLayoutManager(getActivity());//这里有可能是个BUG
         recyclerView.setLayoutManager(layoutManager);
-        FriendAdapter friendAdapter=new FriendAdapter(mFriendList);
+        FriendAdapter friendAdapter=new FriendAdapter(mFriendList,userAccount);
         recyclerView.setAdapter(friendAdapter);
         return view;
     }

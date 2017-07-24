@@ -10,6 +10,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.chat.gson.UserAccount;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +20,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private Button sentButton;
     private List<Chat> mChatList=new ArrayList<>();
     private Friend friend;
+    private UserAccount userAccount;
     private RecyclerView recyclerView;
     private ChatAdapter chatAdapter;
 
@@ -29,12 +32,13 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         sentButton=(Button)findViewById(R.id.sent_button);
         Intent intent=getIntent();
         friend=(Friend)intent.getSerializableExtra("friend");//java是讲究顺序的！！！,不讲究顺序的是声明！
+        userAccount=(UserAccount)intent.getSerializableExtra("user");
         //逻辑顺序还是有的！！！
         chatInit();
         recyclerView=(RecyclerView)findViewById(R.id.chat_recycler_view);
         LinearLayoutManager layoutManager=new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        chatAdapter=new ChatAdapter(mChatList);
+        chatAdapter=new ChatAdapter(mChatList,userAccount);
         recyclerView.setAdapter(chatAdapter);
         sentButton.setOnClickListener(this);
     }
