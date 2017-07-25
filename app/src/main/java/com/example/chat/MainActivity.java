@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.chat.db.Friends;
 import com.example.chat.db.User;
 import com.example.chat.gson.UserAccount;
 import com.example.chat.util.HttpUtil;
@@ -40,12 +41,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button loginButton;
     private Button signUpButton;
     private CheckBox remember_passwordCheckBox;
+    private ImageView userAvatar;
     SharedPreferences.Editor editor;
     SharedPreferences pref;
     private TextView ttt;
     private ImageView xxx;
     String account;
     String password;
+    String userAvatarAddress;
     List<User>userList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         accountEdit=(EditText)findViewById(R.id.Account);
         passwordEdit=(EditText)findViewById(R.id.Password);
+        userAvatar=(ImageView)findViewById(R.id.user_Avatar);
         ttt=(TextView)findViewById(R.id.ttt);
         xxx=(ImageView)findViewById(R.id.xxx);
         remember_passwordCheckBox=(CheckBox)findViewById(R.id.remember_password);
@@ -66,6 +70,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(isRememberPassword){
             accountEdit.setText(pref.getString("account",""));
             passwordEdit.setText(pref.getString("password",""));
+            //ttt.setText(pref.getString("userAvatarAddress",""));
+            Glide.with(this).load("http://192.168.1.109/"+
+                    pref.getString("userAvatarAddress","")+".png").into(userAvatar);
             remember_passwordCheckBox.setChecked(true);
         }
     }
@@ -81,8 +88,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     editor.putBoolean("remember_password",true);
                 }else{
                     editor.clear();
+                    DataSupport.deleteAll(Friends.class);
+                    DataSupport.deleteAll(User.class);
                 }
-                editor.apply();
 
                 userList=DataSupport.findAll(User.class);//glide有十分强大的缓存机制，详见网页收藏的Glide的基本用法
                 if (userList.size()>0){
@@ -99,6 +107,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 userAccount.setName(userList.get(i).getName());
                                 userAccount.setAvatar(userList.get(i).getAvatar());
                                 userAccount.setFriendsId(userList.get(i).getFriendsId());
+                                userAvatarAddress=userList.get(i).getAvatar();
+                                editor.putString("userAvatarAddress",userAvatarAddress);
                                 intent.putExtra("User",userAccount);
                                 startActivity(intent);
                             }else{
@@ -122,7 +132,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     accountExist=true;
                                     if (UserAccountList.get(i).getPassword().equals(password)){
                                         showResponse("OK!");
-
                                         User user=new User();
                                         user.setAccount(account);
                                         user.setPassword(password);
@@ -130,7 +139,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         user.setAvatar(UserAccountList.get(i).getAvatar());
                                         user.setFriendsId(UserAccountList.get(i).getFriendsId());
                                         user.save();
-
+                                        userAvatarAddress=UserAccountList.get(i).getAvatar();
+                                        editor.putString("userAvatarAddress",userAvatarAddress);
                                         Intent intent = new Intent(MainActivity.this, FriendChooseActivity.class);
                                         intent.putExtra("User",UserAccountList.get(i));
                                         startActivity(intent);
@@ -151,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     });
                 }
+                editor.apply();
                 break;
             case R.id.sign_up:
                 Glide.with(this).load("http://192.168.1.108/1/apple_pic.png").into(xxx);

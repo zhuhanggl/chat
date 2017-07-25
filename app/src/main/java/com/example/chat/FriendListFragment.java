@@ -13,12 +13,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.chat.db.Friends;
 import com.example.chat.gson.OneFriend;
 import com.example.chat.gson.UserAccount;
 import com.example.chat.gson.UserFriend;
 import com.example.chat.util.HttpUtil;
 import com.example.chat.util.Utility;
+
+import org.litepal.crud.DataSupport;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,6 +39,7 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
     private TextView accountText;
     private Button backMainActivity;
     private List<Friend> mFriendList=new ArrayList<>();
+    private List<Friends> friendsList;
     UserAccount userAccount;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -64,25 +69,43 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
     }
     private void FriendInit(){
         String FriendsId=userAccount.getFriendsId();
-        HttpUtil.sendOkHttpRequest("http://192.168.1.109/"+FriendsId+"/"+FriendsId+".json",
-                new okhttp3.Callback(){
-            @Override
-            public void onResponse(Call call, Response response)throws IOException {
-                String responseData=response.body().string();
-                UserFriend userFriend=Utility.handleUserFriendResponse(responseData);
-                List<OneFriend> oneFriendList=userFriend.getOneFriendList();
-                for(int i=0;i<oneFriendList.size();i++){
-                    OneFriend oneFriend=oneFriendList.get(i);
-                    Friend apple=new Friend(userFriend.getFriendId(),
-                            oneFriend.getAvatar(),oneFriend.getName());
-                    mFriendList.add(apple);
+        friendsList= DataSupport.findAll(Friends.class);
+        if(friendsList.size()>0){
+            for (int i=0;i<friendsList.size();i++){
+                Friend friend=new Friend(friendsList.get(i).getFriendId(),friendsList.get(i).getAvatar(),
+                        friendsList.get(i).getName());
+                mFriendList.add(friend);
+            }
+            showResponse("OK!(fromDB)");
+        }else{
+            showResponse("OK!(not fromDB)");
+            HttpUtil.sendOkHttpRequest("http://192.168.1.109/"+FriendsId+"/"+FriendsId+".json",
+                    new okhttp3.Callback(){
+                @Override
+                public void onResponse(Call call, Response response)throws IOException {
+                    String responseData=response.body().string();
+                    UserFriend userFriend=Utility.handleUserFriendResponse(responseData);
+                    List<OneFriend> oneFriendList=userFriend.getOneFriendList();
+                    for(int i=0;i<oneFriendList.size();i++){
+                        OneFriend oneFriend=oneFriendList.get(i);
+                        Friend friend=new Friend(userFriend.getFriendId(),
+                                oneFriend.getAvatar(),oneFriend.getName());
+                        mFriendList.add(friend);
+                        Friends friends=new Friends();
+                        friends.setFriendId(userFriend.getFriendId());
+                        friends.setAccount(oneFriend.getAccount());
+                        friends.setName(oneFriend.getName());
+                        friends.setAvatar(oneFriend.getAvatar());
+                        friends.save();
+                    }
                 }
-            }
-            @Override
-            public void onFailure(Call call,IOException e){
-                e.printStackTrace();
-            }
-        });
+                @Override
+                public void onFailure(Call call,IOException e){
+                    e.printStackTrace();
+                }
+            });
+        }
+
         /*for (int i=0;i<2;i++){
             Friend apple=new Friend(R.drawable.apple_pic,"apple");
             mFriendList.add(apple);
@@ -105,5 +128,8 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
             Friend mango=new Friend(R.drawable.mango_pic,"mange");
             mFriendList.add(mango);
         }*/
+    }
+    private void showResponse(final String response){
+        Toast.makeText(getActivity(),response,Toast.LENGTH_SHORT).show();
     }
 }

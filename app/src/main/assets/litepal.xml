@@ -4,6 +4,6 @@
     <version value="1"></version>
     <list>
         <mapping class="com.example.chat.db.User"></mapping>
-        <mapping class="com.example.chat.db.Friends"></mapping>
+        <mapping class="com.example.chat.db.Friend"></mapping>
     </list>
 </litepal>

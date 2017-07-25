@@ -35,7 +35,8 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
         }
     }
 
-    public FriendAdapter(List<Friend> mFriendList,UserAccount userAccount){//可以用构造函数来实现与活动的交互
+    public FriendAdapter(List<Friend> mFriendList,UserAccount userAccount){//可以用构造函数来实现
+        // 与活动（碎片）的交互
         this.mFriendList=mFriendList;
         this.userAccount=userAccount;
     }

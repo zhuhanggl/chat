@@ -49,7 +49,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
         }
     }
 
-    public ChatAdapter(List<Chat> mChatList, UserAccount userAccount){
+    public ChatAdapter(List<Chat> mChatList, UserAccount userAccount){//可以用构造函数来实现与活动的交互
         this.mChatList=mChatList;
         this.userAccount=userAccount;
     }
