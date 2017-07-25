@@ -14,9 +14,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.chat.db.User;
 import com.example.chat.gson.UserAccount;
 import com.example.chat.util.HttpUtil;
 import com.example.chat.util.Utility;
+
+import org.litepal.crud.DataSupport;
 
 import java.io.IOException;
 import java.util.List;
@@ -43,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView xxx;
     String account;
     String password;
+    List<User>userList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,35 +83,74 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     editor.clear();
                 }
                 editor.apply();
-                HttpUtil.sendOkHttpRequest("http://192.168.1.108/account.json",new okhttp3.Callback(){
-                    @Override
-                    public void onResponse(Call call,Response response)throws IOException{
-                        String responseData=response.body().string();
-                        List<UserAccount> UserAccountList=Utility.handleAccountResponse(responseData);
-                        boolean accountExist=false;
-                        for(int i=0;i<UserAccountList.size();i++){
-                            if (UserAccountList.get(i).getAccount().equals(account)){
-                                accountExist=true;
-                                if (UserAccountList.get(i).getPassword().equals(password)){
-                                    showResponse("OK!");
-                                    Intent intent = new Intent(MainActivity.this, FriendChooseActivity.class);
-                                    intent.putExtra("User",UserAccountList.get(i));
-                                    startActivity(intent);
-                                }else{
-                                    showResponse("password wrong!");
+
+                userList=DataSupport.findAll(User.class);//glide有十分强大的缓存机制，详见网页收藏的Glide的基本用法
+                if (userList.size()>0){
+                    boolean accountExist=false;
+                    for(int i=0;i<userList.size();i++){
+                        if(userList.get(i).getAccount().equals(account)){
+                            accountExist=true;
+                            if (userList.get(i).getPassword().equals(password)){
+                                showResponse("OK!(DB)");
+                                Intent intent = new Intent(this, FriendChooseActivity.class);
+                                UserAccount userAccount=new UserAccount();
+                                userAccount.setAccount(userList.get(i).getAccount());
+                                userAccount.setPassword(userList.get(i).getPassword());
+                                userAccount.setName(userList.get(i).getName());
+                                userAccount.setAvatar(userList.get(i).getAvatar());
+                                userAccount.setFriendsId(userList.get(i).getFriendsId());
+                                intent.putExtra("User",userAccount);
+                                startActivity(intent);
+                            }else{
+                                showResponse("password wrong!(DB)");
+                            }
+                            break;
+                        }
+                    }
+                    if (!accountExist){
+                        showResponse("No this account!(DB)");
+                    }
+                }else{
+                    HttpUtil.sendOkHttpRequest("http://192.168.1.109/account.json",new okhttp3.Callback(){
+                        @Override
+                        public void onResponse(Call call,Response response)throws IOException{
+                            String responseData=response.body().string();
+                            List<UserAccount> UserAccountList=Utility.handleAccountResponse(responseData);
+                            boolean accountExist=false;
+                            for(int i=0;i<UserAccountList.size();i++){
+                                if (UserAccountList.get(i).getAccount().equals(account)){
+                                    accountExist=true;
+                                    if (UserAccountList.get(i).getPassword().equals(password)){
+                                        showResponse("OK!");
+
+                                        User user=new User();
+                                        user.setAccount(account);
+                                        user.setPassword(password);
+                                        user.setName(UserAccountList.get(i).getName());
+                                        user.setAvatar(UserAccountList.get(i).getAvatar());
+                                        user.setFriendsId(UserAccountList.get(i).getFriendsId());
+                                        user.save();
+
+                                        Intent intent = new Intent(MainActivity.this, FriendChooseActivity.class);
+                                        intent.putExtra("User",UserAccountList.get(i));
+                                        startActivity(intent);
+                                    }else{
+                                        showResponse("password wrong!");
+                                    }
+                                    break;
                                 }
-                                break;
+                            }
+                            if (!accountExist){
+                                showResponse("No this account!");
                             }
                         }
-                        if (!accountExist){
-                            showResponse("No this account!");
+
+                        @Override
+                        public void onFailure(Call call,IOException e){
+                            e.printStackTrace();
                         }
-                    }
-                    @Override
-                    public void onFailure(Call call,IOException e){
-                        e.printStackTrace();
-                    }
-                });
+                    });
+                }
                 break;
             case R.id.sign_up:
                 Glide.with(this).load("http://192.168.1.108/1/apple_pic.png").into(xxx);

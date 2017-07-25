@@ -64,7 +64,7 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
     }
     private void FriendInit(){
         String FriendsId=userAccount.getFriendsId();
-        HttpUtil.sendOkHttpRequest("http://192.168.1.108/"+FriendsId+"/"+FriendsId+".json",
+        HttpUtil.sendOkHttpRequest("http://192.168.1.109/"+FriendsId+"/"+FriendsId+".json",
                 new okhttp3.Callback(){
             @Override
             public void onResponse(Call call, Response response)throws IOException {

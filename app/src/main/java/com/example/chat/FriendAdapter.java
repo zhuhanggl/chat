@@ -66,7 +66,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
     @Override
     public void onBindViewHolder(ViewHolder viewHolder,int position){
         Friend friend=mFriendList.get(position);
-        Glide.with(mContext).load("http://192.168.1.108/"+
+        Glide.with(mContext).load("http://192.168.1.109/"+
                 friend.getFriendId()+"/"+friend.getAvatarId()+".png").into(viewHolder.AvatarId);
         viewHolder.name.setText(friend.getName());
     }

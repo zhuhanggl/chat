@@ -7,16 +7,18 @@ import org.litepal.crud.DataSupport;
  */
 
 public class Friends extends DataSupport {
-    private String userAccount;
+    private int id;//id这个字段必须要有
+    private String FriendId;
+    private String account;
     private String name;
-    private int AvatarId;
+    private String Avatar;
 
-    public String getUserAccount() {
-        return userAccount;
+    public String getFriendId() {
+        return FriendId;
     }
 
-    public void setUserAccount(String userAccount) {
-        this.userAccount = userAccount;
+    public void setFriendId(String friendId) {
+        FriendId = friendId;
     }
 
     public String getName() {
@@ -27,11 +29,19 @@ public class Friends extends DataSupport {
         this.name = name;
     }
 
-    public int getAvatarId() {
-        return AvatarId;
+    public String getAvatar() {
+        return Avatar;
     }
 
-    public void setAvatarId(int avatarId) {
-        AvatarId = avatarId;
+    public void setAvatar(String avatar) {
+        Avatar = avatar;
+    }
+
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
     }
 }
