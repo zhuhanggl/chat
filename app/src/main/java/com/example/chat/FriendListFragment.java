@@ -127,6 +127,7 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
                         friends.save();
                     }
                     getActivity().runOnUiThread(new Runnable() {//需要得到活动才能执行runOnUi
+                        //虽然也是在主线程中执行的，但是是在前面的子线程中的程序执行完后才轮到这里执行
                         @Override
                         public void run() {
                             friendAdapter.notifyDataSetChanged();//这也属于UI操作，还有该函数放在这里而不是放在
