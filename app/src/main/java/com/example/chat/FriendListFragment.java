@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.LayoutInflaterCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -43,13 +44,17 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
     private List<Friend> mFriendList=new ArrayList<>();
     private List<Friends> friendsList;
     private UserAccount userAccount;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private FriendAdapter friendAdapter;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
         View view=inflater.inflate(R.layout.friend_choose,container,false);
-        accountText=(TextView)view.findViewById(R.id.title_account_text);
+        accountText=(TextView)view.findViewById(R.id.title_account_text);//在碎片中，所以要用view
         backMainActivity=(Button)view.findViewById(R.id.back_MainActivity);
         backMainActivity.setOnClickListener(this);
+        swipeRefreshLayout=(SwipeRefreshLayout)view.findViewById(R.id.swipe_refresh);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
         if (getActivity() instanceof FriendChooseActivity){
             FriendChooseActivity friendChoose=(FriendChooseActivity) getActivity();
             userAccount=friendChoose.getUserAccount();
@@ -64,10 +69,18 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
         LinearLayoutManager layoutManager=new LinearLayoutManager(getActivity());//这里有可能是个BUG
         recyclerView.setLayoutManager(layoutManager);
         Activity activity=getActivity();
-        FriendAdapter friendAdapter=new FriendAdapter(mFriendList,userAccount,activity);//注意，这里的userAccount的
+        friendAdapter=new FriendAdapter(mFriendList,userAccount,activity);//注意，这里的userAccount的
         // 传递顺序，顺序出错程序会崩溃！！尤其要注意fragment是复用的，而且其中的量userAccount是会用到两次的
         //on a null object reference，为空对象的引用！注意
         recyclerView.setAdapter(friendAdapter);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                DataSupport.deleteAll(Friends.class);
+                FriendInit();
+                swipeRefreshLayout.setRefreshing(false);//让等待图标消失
+            }
+        });
         return view;
     }
     @Override
@@ -83,6 +96,7 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
         }
     }
     private void FriendInit(){
+        mFriendList.clear();
         String FriendsId=userAccount.getFriendsId();
         friendsList= DataSupport.findAll(Friends.class);
         if(friendsList.size()>0){
@@ -93,9 +107,8 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
             }
             showResponse("OK!(fromDB)");
         }else{
-            showResponse("OK!(not fromDB)");
             HttpUtil.sendOkHttpRequest("http://192.168.1.111/"+FriendsId+"/"+FriendsId+".json",
-                    new okhttp3.Callback(){
+                    new okhttp3.Callback(){//内部属于子线程
                 @Override
                 public void onResponse(Call call, Response response)throws IOException {
                     String responseData=response.body().string();
@@ -113,12 +126,21 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
                         friends.setAvatar(oneFriend.getAvatar());
                         friends.save();
                     }
+                    getActivity().runOnUiThread(new Runnable() {//需要得到活动才能执行runOnUi
+                        @Override
+                        public void run() {
+                            friendAdapter.notifyDataSetChanged();//这也属于UI操作，还有该函数放在这里而不是放在
+                            //刷新函数中FriendInit();的后面的原因是，该方法必须放在子线程中等待被调用，否则没等
+                            //FriendInit()执行完，friendAdapter.notifyDataSetChanged()就执行结束了
+                        }
+                    });
                 }
                 @Override
                 public void onFailure(Call call,IOException e){
                     e.printStackTrace();
                 }
             });
+            showResponse("OK!(not fromDB)");
         }
 
         /*for (int i=0;i<2;i++){

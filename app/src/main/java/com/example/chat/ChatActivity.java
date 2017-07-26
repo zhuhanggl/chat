@@ -54,7 +54,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.sent_button:
                 Chat chat=new Chat(friend,sentText.getText().toString(),Chat.TYPE_SENT);
                 mChatList.add(chat);
-                chatAdapter.notifyItemInserted(mChatList.size()-1);//动态过程中要注意刷新！！
+                //chatAdapter.notifyItemInserted(mChatList.size()-1);//动态过程中要注意刷新！！
                 recyclerView.scrollToPosition(mChatList.size()-1);
                 sentText.setText("");
                 break;
