@@ -1,9 +1,11 @@
 package com.example.chat;
 
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.LayoutInflaterCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -40,7 +42,7 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
     private Button backMainActivity;
     private List<Friend> mFriendList=new ArrayList<>();
     private List<Friends> friendsList;
-    UserAccount userAccount;
+    private UserAccount userAccount;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
@@ -48,16 +50,29 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
         accountText=(TextView)view.findViewById(R.id.title_account_text);
         backMainActivity=(Button)view.findViewById(R.id.back_MainActivity);
         backMainActivity.setOnClickListener(this);
-        FriendChooseActivity friendChoose=(FriendChooseActivity) getActivity();
-        userAccount=friendChoose.getUserAccount();
-        accountText.setText(userAccount.getName());
+        if (getActivity() instanceof FriendChooseActivity){
+            FriendChooseActivity friendChoose=(FriendChooseActivity) getActivity();
+            userAccount=friendChoose.getUserAccount();
+            accountText.setText(userAccount.getName());
+        }else {
+            ChatActivity chatActivity=(ChatActivity) getActivity();
+            userAccount=chatActivity.getUserAccount();
+            accountText.setText(userAccount.getName());//这句话是bug所在！！！
+        }
         FriendInit();
         RecyclerView recyclerView=(RecyclerView)view.findViewById(R.id.friend_recycler_view);
         LinearLayoutManager layoutManager=new LinearLayoutManager(getActivity());//这里有可能是个BUG
         recyclerView.setLayoutManager(layoutManager);
-        FriendAdapter friendAdapter=new FriendAdapter(mFriendList,userAccount);
+        Activity activity=getActivity();
+        FriendAdapter friendAdapter=new FriendAdapter(mFriendList,userAccount,activity);//注意，这里的userAccount的
+        // 传递顺序，顺序出错程序会崩溃！！尤其要注意fragment是复用的，而且其中的量userAccount是会用到两次的
+        //on a null object reference，为空对象的引用！注意
         recyclerView.setAdapter(friendAdapter);
         return view;
+    }
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState){
+        super.onActivityCreated(savedInstanceState);
     }
     @Override
     public void onClick(View v){
@@ -79,7 +94,7 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
             showResponse("OK!(fromDB)");
         }else{
             showResponse("OK!(not fromDB)");
-            HttpUtil.sendOkHttpRequest("http://192.168.1.109/"+FriendsId+"/"+FriendsId+".json",
+            HttpUtil.sendOkHttpRequest("http://192.168.1.111/"+FriendsId+"/"+FriendsId+".json",
                     new okhttp3.Callback(){
                 @Override
                 public void onResponse(Call call, Response response)throws IOException {

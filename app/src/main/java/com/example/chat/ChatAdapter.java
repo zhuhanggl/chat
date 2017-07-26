@@ -76,14 +76,14 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
         Chat chat=mChatList.get(position);
         if (chat.getType()==Chat.TYPE_RECEIVED){
             viewHolder.friendName.setText(chat.getFriend().getName());
-            Glide.with(mContext).load("http://192.168.1.109/"+chat.getFriend().getFriendId()
+            Glide.with(mContext).load("http://192.168.1.111/"+chat.getFriend().getFriendId()
                     +"/"+chat.getFriend().getAvatarId()+".png").into(viewHolder.friendAvatarId);
             //viewHolder.friendAvatarId.setImageResource(chat.getFriend().getAvatarId());
             viewHolder.leftLayout.setVisibility(View.VISIBLE);
             viewHolder.rightLayout.setVisibility(View.GONE);
             viewHolder.leftChat.setText(chat.getChatText());
         }else if(chat.getType()==Chat.TYPE_SENT){
-            Glide.with(mContext).load("http://192.168.1.109/"+userAccount.getAvatar()+".png")
+            Glide.with(mContext).load("http://192.168.1.111/"+userAccount.getAvatar()+".png")
                     .into(viewHolder.meAvatarId);
             viewHolder.meName.setText(userAccount.getName());
             viewHolder.leftLayout.setVisibility(View.GONE);

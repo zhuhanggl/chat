@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             accountEdit.setText(pref.getString("account",""));
             passwordEdit.setText(pref.getString("password",""));
             //ttt.setText(pref.getString("userAvatarAddress",""));
-            Glide.with(this).load("http://192.168.1.109/"+
+            Glide.with(this).load("http://192.168.1.111/"+
                     pref.getString("userAvatarAddress","")+".png").into(userAvatar);
             remember_passwordCheckBox.setChecked(true);
         }
@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         showResponse("No this account!(DB)");
                     }
                 }else{
-                    HttpUtil.sendOkHttpRequest("http://192.168.1.109/account.json",new okhttp3.Callback(){
+                    HttpUtil.sendOkHttpRequest("http://192.168.1.111/account.json",new okhttp3.Callback(){
                         @Override
                         public void onResponse(Call call,Response response)throws IOException{
                             String responseData=response.body().string();

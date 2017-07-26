@@ -1,6 +1,8 @@
 package com.example.chat;
 
 import android.content.Intent;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,17 +25,20 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private UserAccount userAccount;
     private RecyclerView recyclerView;
     private ChatAdapter chatAdapter;
-
+    public DrawerLayout drawerLayout;
+    private Button backFriendChooseActivity;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
-        sentText=(EditText)findViewById(R.id.sent_text);
-        sentButton=(Button)findViewById(R.id.sent_button);
         Intent intent=getIntent();
         friend=(Friend)intent.getSerializableExtra("friend");//java是讲究顺序的！！！,不讲究顺序的是声明！
         userAccount=(UserAccount)intent.getSerializableExtra("user");
         //逻辑顺序还是有的！！！
+        setContentView(R.layout.activity_chat);
+        sentText=(EditText)findViewById(R.id.sent_text);
+        sentButton=(Button)findViewById(R.id.sent_button);
+        backFriendChooseActivity=(Button)findViewById(R.id.back_FriendChooseActivity);
+        drawerLayout=(DrawerLayout)findViewById(R.id.drawer_layout);
         chatInit();
         recyclerView=(RecyclerView)findViewById(R.id.chat_recycler_view);
         LinearLayoutManager layoutManager=new LinearLayoutManager(this);
@@ -41,6 +46,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         chatAdapter=new ChatAdapter(mChatList,userAccount);
         recyclerView.setAdapter(chatAdapter);
         sentButton.setOnClickListener(this);
+        backFriendChooseActivity.setOnClickListener(this);
     }
     @Override
     public void onClick(View view){
@@ -52,6 +58,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 recyclerView.scrollToPosition(mChatList.size()-1);
                 sentText.setText("");
                 break;
+            case R.id.back_FriendChooseActivity:
+                drawerLayout.openDrawer(GravityCompat.START);
         }
     }
 
@@ -62,5 +70,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         mChatList.add(chat);
         chat=new Chat(friend,"kuangcao1xiaoshi",Chat.TYPE_RECEIVED);
         mChatList.add(chat);
+    }
+    public UserAccount getUserAccount() {
+        return userAccount;
     }
 }

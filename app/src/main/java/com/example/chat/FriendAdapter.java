@@ -1,8 +1,10 @@
 package com.example.chat;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.media.Image;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +25,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
     private List<Friend> mFriendList;
     private Context mContext;
     private UserAccount userAccount;
+    private Activity activity;
     static class ViewHolder extends RecyclerView.ViewHolder{
         ImageView AvatarId;
         TextView name;
@@ -35,10 +38,11 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
         }
     }
 
-    public FriendAdapter(List<Friend> mFriendList,UserAccount userAccount){//可以用构造函数来实现
-        // 与活动（碎片）的交互
+    public FriendAdapter(List<Friend> mFriendList, UserAccount userAccount, Activity activity){
+        //可以用构造函数来实现与活动（碎片）的交互
         this.mFriendList=mFriendList;
         this.userAccount=userAccount;
+        this.activity=activity;
     }
 
     @Override
@@ -55,11 +59,22 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
             public void onClick(View view) {
                 int position=viewholder.getAdapterPosition();//这里获取位置的方法重要！！
                 Friend friend=mFriendList.get(position);
-                Intent intent=new Intent(parent.getContext(),ChatActivity.class);//这里关于怎么获取
-                // 上下文的方法要注意
-                intent.putExtra("friend",friend);
-                intent.putExtra("user",userAccount);
-                mContext.startActivity(intent);
+                if(activity instanceof FriendChooseActivity){
+                    Intent intent=new Intent(parent.getContext(),ChatActivity.class);//这里关于怎么获取
+                    // 上下文的方法要注意
+                    intent.putExtra("friend",friend);
+                    intent.putExtra("user",userAccount);
+                    mContext.startActivity(intent);
+                }else if (activity instanceof ChatActivity){
+                    ChatActivity chatActivity=(ChatActivity)activity;
+                    chatActivity.drawerLayout.closeDrawers();
+                    Intent intent=new Intent(parent.getContext(),ChatActivity.class);//这里关于怎么获取
+                    // 上下文的方法要注意
+                    intent.putExtra("friend",friend);
+                    intent.putExtra("user",userAccount);
+                    mContext.startActivity(intent);
+                    chatActivity.finish();
+                }
             }
         });
         return viewholder;
@@ -67,7 +82,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
     @Override
     public void onBindViewHolder(ViewHolder viewHolder,int position){
         Friend friend=mFriendList.get(position);
-        Glide.with(mContext).load("http://192.168.1.109/"+
+        Glide.with(mContext).load("http://192.168.1.111/"+
                 friend.getFriendId()+"/"+friend.getAvatarId()+".png").into(viewHolder.AvatarId);
         viewHolder.name.setText(friend.getName());
     }
