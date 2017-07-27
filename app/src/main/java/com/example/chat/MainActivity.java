@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 editor.apply();
                 break;
             case R.id.sign_up:
-                Glide.with(this).load("http://192.168.1.108/1/apple_pic.png").into(xxx);
+                /*Glide.with(this).load("http://192.168.1.108/1/apple_pic.png").into(xxx);
                 HttpUtil.sendOkHttpRequest("http://192.168.1.108/1/1.json",new okhttp3.Callback(){
                     @Override
                     public void onResponse(Call call,Response response)throws IOException{
@@ -175,7 +175,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onFailure(Call call,IOException e){
                         e.printStackTrace();
                     }
-                });
+                });*/
+                Intent intent=new Intent(this, TestChatActivity.class);
+                startActivity(intent);
                 break;
         }
     }
