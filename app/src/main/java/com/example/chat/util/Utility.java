@@ -19,14 +19,18 @@ import java.util.List;
  */
 
 public class Utility {
-    public static List<UserAccount> handleAccountResponse(String response){
+
+    public static UserAccount handleAccountResponse(String response){
         if(!TextUtils.isEmpty(response)){
             try{
-                JSONObject ChatAccountsObject=new JSONObject(response);
+                /*JSONObject ChatAccountsObject=new JSONObject(response);
                 JSONArray accountArray=ChatAccountsObject.getJSONArray("ChatAccounts");
-                String accountContent=accountArray.toString();
+                String accountContent=accountArray.toString();*/
                 Gson gson= new Gson();
-                return gson.fromJson(accountContent, new TypeToken<List<UserAccount>>(){}.getType());
+                UserAccount userAccount=gson.fromJson(response,UserAccount.class);
+                /*List<UserAccount> userAccountList=gson.fromJson(response,
+                        new TypeToken<List<UserAccount>>(){}.getType());*/
+                return userAccount;
             }catch (Exception e){//注意这里是Exception不是IOE！
                 e.printStackTrace();
             }

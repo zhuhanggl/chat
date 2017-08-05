@@ -25,6 +25,7 @@ import com.example.chat.gson.UserFriend;
 import com.example.chat.util.HttpUtil;
 import com.example.chat.util.Utility;
 
+import org.apache.http.params.HttpParams;
 import org.litepal.crud.DataSupport;
 
 import java.io.IOException;
@@ -97,7 +98,6 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
     }
     private void FriendInit(){
         mFriendList.clear();
-        String FriendsId=userAccount.getFriendsId();
         friendsList= DataSupport.findAll(Friends.class);
         if(friendsList.size()>0){
             for (int i=0;i<friendsList.size();i++){
@@ -107,8 +107,8 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
             }
             showResponse("OK!(fromDB)");
         }else{
-            HttpUtil.sendOkHttpRequest("http://192.168.1.111/"+FriendsId+"/"+FriendsId+".json",
-                    new okhttp3.Callback(){//内部属于子线程
+            HttpUtil.sendOkHttpFriendsLoading("http://" + HttpUtil.localIP + ":8080/okhttp3_test/LoginServlet",
+                    userAccount,new okhttp3.Callback(){//内部属于子线程
                 @Override
                 public void onResponse(Call call, Response response)throws IOException {
                     String responseData=response.body().string();

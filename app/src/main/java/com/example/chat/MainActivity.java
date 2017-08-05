@@ -17,7 +17,9 @@ import com.bumptech.glide.Glide;
 import com.example.chat.db.Friends;
 import com.example.chat.db.User;
 import com.example.chat.gson.UserAccount;
+import com.example.chat.service.IPupdate;
 import com.example.chat.util.HttpUtil;
+import com.example.chat.util.SignUpActivity;
 import com.example.chat.util.Utility;
 
 import org.litepal.crud.DataSupport;
@@ -26,6 +28,7 @@ import java.io.IOException;
 import java.util.List;
 
 import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -50,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     String password;
     String userAvatarAddress;
     List<User>userList;
+    UserAccount userAccountForSignUp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             accountEdit.setText(pref.getString("account",""));
             passwordEdit.setText(pref.getString("password",""));
             //ttt.setText(pref.getString("userAvatarAddress",""));
-            Glide.with(this).load("http://192.168.1.111/"+
+            Glide.with(this).load("http://"+HttpUtil.localIP+"/"+
                     pref.getString("userAvatarAddress","")+".png").into(userAvatar);
             remember_passwordCheckBox.setChecked(true);
         }
@@ -100,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             accountExist=true;
                             if (userList.get(i).getPassword().equals(password)){
                                 showResponse("OK!(DB)");
-                                Intent intent = new Intent(this, FriendChooseActivity.class);
                                 UserAccount userAccount=new UserAccount();
                                 userAccount.setAccount(userList.get(i).getAccount());
                                 userAccount.setPassword(userList.get(i).getPassword());
@@ -109,6 +112,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 userAccount.setFriendsId(userList.get(i).getFriendsId());
                                 userAvatarAddress=userList.get(i).getAvatar();
                                 editor.putString("userAvatarAddress",userAvatarAddress);
+                                Intent IPUpdateIntent=new Intent(this, IPupdate.class);
+                                IPUpdateIntent.putExtra("User",userAccount);
+                                startService(IPUpdateIntent);
+                                Intent intent = new Intent(this, FriendChooseActivity.class);
                                 intent.putExtra("User",userAccount);
                                 startActivity(intent);
                             }else{
@@ -121,7 +128,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         showResponse("No this account!(DB)");
                     }
                 }else{
-                    HttpUtil.sendOkHttpRequest("http://192.168.1.111/account.json",new okhttp3.Callback(){
+                    HttpUtil.sendOkHttpLogin("http://" + HttpUtil.localIP + ":8080/okhttp3_test/LoginServlet",
+                            account, password, new Callback() {
+                                @Override
+                                public void onResponse(Call call, Response response) throws IOException {
+                                    String responseData=response.body().string();
+                                    if(responseData.equals("x")){
+                                        showResponse("用户名不存在的");
+                                    }else if (responseData.equals("q")){
+                                        showResponse("密码错误");
+                                    }else {
+                                        showResponse(responseData);
+                                        showResponse("登录中");
+                                        UserAccount userAccount=Utility.handleAccountResponse(responseData);
+                                        showResponse(userAccount.getPassword());
+                                        Intent IPUpdateIntent=new Intent(MainActivity.this, IPupdate.class);
+                                        IPUpdateIntent.putExtra("User",userAccount);
+                                        startService(IPUpdateIntent);
+                                        Intent intent = new Intent(MainActivity.this, FriendChooseActivity.class);
+                                        intent.putExtra("User",userAccount);
+                                        startActivity(intent);
+                                    }
+                                }
+                                @Override
+                                public void onFailure(Call call, IOException e) {
+
+                                }
+                            });
+                    /*HttpUtil.sendOkHttpRequest("http://"+ HttpUtil.localIP+":8080/okhttp3_test/LoginServlet",new okhttp3.Callback(){
                         @Override
                         public void onResponse(Call call,Response response)throws IOException{
                             String responseData=response.body().string();
@@ -159,11 +193,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         public void onFailure(Call call,IOException e){
                             e.printStackTrace();
                         }
-                    });
+                    });*/
                 }
                 editor.apply();
                 break;
             case R.id.sign_up:
+                Intent intent=new Intent(MainActivity.this, SignUpActivity.class);
+                startActivityForResult(intent,1);
                 /*Glide.with(this).load("http://192.168.1.108/1/apple_pic.png").into(xxx);
                 HttpUtil.sendOkHttpRequest("http://192.168.1.108/1/1.json",new okhttp3.Callback(){
                     @Override
@@ -175,10 +211,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onFailure(Call call,IOException e){
                         e.printStackTrace();
                     }
-                });*/
+                });
                 Intent intent=new Intent(this, TestChatActivity.class);
-                startActivity(intent);
+                startActivity(intent);*/
                 break;
+        }
+    }
+    @Override
+    protected void onActivityResult(int requestCode,int resultCode,Intent data){
+        switch (requestCode){
+            case 1:
+                if(resultCode==RESULT_OK){
+                    userAccountForSignUp=(UserAccount)data.getSerializableExtra("User");
+                }
         }
     }
 

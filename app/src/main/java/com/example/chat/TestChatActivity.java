@@ -7,6 +7,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.chat.util.HttpUtil;
+import com.example.chat.util.Utility;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -42,7 +45,7 @@ public class TestChatActivity extends AppCompatActivity implements View.OnClickL
             public void run() {//下面这段网络申请必须放在子线程中！！！否则不会执行
                 try {
                     String str;
-                    InetAddress addr= InetAddress.getByName("192.168.1.106");
+                    InetAddress addr= InetAddress.getByName(HttpUtil.localIP);
                     Socket socket=new Socket(addr,8000);
                     chatText.setText("zzzz");
                     chatText.append("socket="+socket);

@@ -14,6 +14,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.chat.gson.UserAccount;
+import com.example.chat.util.HttpUtil;
+import com.example.chat.util.Utility;
 
 import java.util.List;
 
@@ -82,8 +84,8 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
     @Override
     public void onBindViewHolder(ViewHolder viewHolder,int position){
         Friend friend=mFriendList.get(position);
-        Glide.with(mContext).load("http://192.168.1.111/"+
-                friend.getFriendId()+"/"+friend.getAvatarId()+".png").into(viewHolder.AvatarId);
+        Glide.with(mContext).load("http://"+ HttpUtil.localIP+":8000/"+
+                friend.getFriendId()+"/"+friend.getAvatarId()).into(viewHolder.AvatarId);
         viewHolder.name.setText(friend.getName());
     }
     @Override
