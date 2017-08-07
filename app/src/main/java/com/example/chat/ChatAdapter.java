@@ -79,8 +79,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
         Chat chat=mChatList.get(position);
         if (chat.getType()==Chat.TYPE_RECEIVED){
             viewHolder.friendName.setText(chat.getFriend().getName());
-            Glide.with(mContext).load("http://"+ HttpUtil.localIP+"/"+chat.getFriend().getFriendId()
-                    +"/"+chat.getFriend().getAvatarId()+".png").into(viewHolder.friendAvatarId);
+            Glide.with(mContext).load("http://"+ HttpUtil.localIP+":8000/"+chat.getFriend().getFriendId()
+                    +"/"+chat.getFriend().getAvatarId()).into(viewHolder.friendAvatarId);
             //viewHolder.friendAvatarId.setImageResource(chat.getFriend().getAvatarId());
             viewHolder.leftLayout.setVisibility(View.VISIBLE);
             viewHolder.rightLayout.setVisibility(View.GONE);

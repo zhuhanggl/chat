@@ -8,10 +8,12 @@ import java.io.Serializable;
 
 public class Friend implements Serializable{
     private String FriendId;
+    private String Account;
     private String AvatarId;
     private String name;
-    public Friend(String FriendId,String AvatarId,String name){
+    public Friend(String FriendId,String Account,String AvatarId,String name){
         this.FriendId=FriendId;
+        this.Account=Account;
         this.AvatarId=AvatarId;
         this.name=name;
     }
@@ -22,6 +24,14 @@ public class Friend implements Serializable{
 
     public void setFriendId(String friendId) {
         FriendId = friendId;
+    }
+
+    public String getAccount() {
+        return Account;
+    }
+
+    public void setAccount(String account) {
+        this.Account = account;
     }
 
     public String getAvatarId() {

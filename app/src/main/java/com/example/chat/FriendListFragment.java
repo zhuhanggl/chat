@@ -98,6 +98,45 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
     }
     private void FriendInit(){
         mFriendList.clear();
+        HttpUtil.sendOkHttpFriendsLoading("http://" + HttpUtil.localIP + ":8080/okhttp3_test/LoginServlet",
+                userAccount,new okhttp3.Callback(){//内部属于子线程
+                    @Override
+                    public void onResponse(Call call, Response response)throws IOException {
+                        String responseData=response.body().string();
+                        UserFriend userFriend=Utility.handleUserFriendResponse(responseData);
+                        List<OneFriend> oneFriendList=userFriend.getOneFriendList();
+                        for(int i=0;i<oneFriendList.size();i++){
+                            OneFriend oneFriend=oneFriendList.get(i);
+                            Friend friend=new Friend(userFriend.getFriendId(),oneFriend.getAccount(),
+                                    oneFriend.getAvatar(),oneFriend.getName());
+                            mFriendList.add(friend);
+                            Friends friends=new Friends();
+                            friends.setFriendId(userFriend.getFriendId());
+                            friends.setAccount(oneFriend.getAccount());
+                            friends.setName(oneFriend.getName());
+                            friends.setAvatar(oneFriend.getAvatar());
+                            friends.save();
+                        }
+                        getActivity().runOnUiThread(new Runnable() {//需要得到活动才能执行runOnUi
+                            //虽然也是在主线程中执行的，但是是在前面的子线程中的程序执行完后才轮到这里执行
+                            @Override
+                            public void run() {
+                                friendAdapter.notifyDataSetChanged();//这也属于UI操作，还有该函数放在这里而不是放在
+                                //刷新函数中FriendInit();的后面的原因是，该方法必须放在子线程中等待被调用，否则没等
+                                //FriendInit()执行完，friendAdapter.notifyDataSetChanged()就执行结束了
+                            }
+                        });
+                    }
+                    @Override
+                    public void onFailure(Call call,IOException e){
+                        e.printStackTrace();
+                    }
+                });
+        showResponse("OK!(not fromDB)");
+
+
+
+        /*mFriendList.clear();//手机调试的话用不了手机内部数据库
         friendsList= DataSupport.findAll(Friends.class);
         if(friendsList.size()>0){
             for (int i=0;i<friendsList.size();i++){
@@ -142,9 +181,13 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
                 }
             });
             showResponse("OK!(not fromDB)");
-        }
-
-        /*for (int i=0;i<2;i++){
+        }*/
+    }
+    private void showResponse(final String response){
+        Toast.makeText(getActivity(),response,Toast.LENGTH_SHORT).show();
+    }
+}
+/*for (int i=0;i<2;i++){
             Friend apple=new Friend(R.drawable.apple_pic,"apple");
             mFriendList.add(apple);
             Friend banana=new Friend(R.drawable.banana_pic,"banana");
@@ -166,8 +209,3 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
             Friend mango=new Friend(R.drawable.mango_pic,"mange");
             mFriendList.add(mango);
         }*/
-    }
-    private void showResponse(final String response){
-        Toast.makeText(getActivity(),response,Toast.LENGTH_SHORT).show();
-    }
-}

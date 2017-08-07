@@ -1,5 +1,6 @@
 package com.example.chat.util;
 
+import com.example.chat.Friend;
 import com.example.chat.gson.UserAccount;
 
 import java.io.IOException;
@@ -9,6 +10,8 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
 import okio.BufferedSink;
 
 /**
@@ -16,7 +19,7 @@ import okio.BufferedSink;
  */
 
 public class HttpUtil {
-    public static final String localIP="192.168.1.101";
+    public static final String localIP="192.168.1.105";
     public static void sendOkHttpRequest(String address,okhttp3.Callback callback){
         OkHttpClient client=new OkHttpClient();
         Request request=new Request.Builder().url(address).build();
@@ -79,5 +82,31 @@ public class HttpUtil {
                 .post(requestBody)
                 .build();
         client.newCall(request).enqueue(callback);
+    }
+
+    public static void sendOkHttpFriendIP(String address, Friend friend, okhttp3.Callback callback){
+        OkHttpClient client=new OkHttpClient();
+        RequestBody requestBody=new FormBody.Builder()
+                .add("Req","4")
+                .add("Account",friend.getAccount())
+                .build();
+        Request request=new Request.Builder()
+                .url(address)
+                .post(requestBody)
+                .build();
+        client.newCall(request).enqueue(callback);
+    }
+
+    public static void FriendChatConnect(String address, Friend friend, WebSocketListener webSocketListener){
+        OkHttpClient client=new OkHttpClient();
+        /*RequestBody requestBody=new FormBody.Builder()
+                .add("Req","5")
+                .add("Account",friend.getAccount())
+                .build();*/
+        Request request=new Request.Builder()
+                .url(address)
+                .build();
+        //.post(requestBody)
+        client.newWebSocket(request, webSocketListener);
     }
 }

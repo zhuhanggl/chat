@@ -81,10 +81,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
     @Override
-    public void onClick(View v){
+    public void onClick(View v){//由于是局域网所以用手机调试的时候使用流量登录不了我的搭建的这个服务器，要
+        // 连接wifi
         switch (v.getId()){
             case R.id.login:
                 account=accountEdit.getText().toString();
+                password=passwordEdit.getText().toString();
+                HttpUtil.sendOkHttpLogin("http://" + HttpUtil.localIP + ":8080/okhttp3_test/LoginServlet",
+                        account, password, new Callback() {
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                String responseData=response.body().string();
+                                if(responseData.equals("x")){
+                                    showResponse("用户名不存在的");
+                                }else if (responseData.equals("q")){
+                                    showResponse("密码错误");
+                                }else {
+                                    showResponse(responseData);
+                                    showResponse("登录中");
+                                    UserAccount userAccount=Utility.handleAccountResponse(responseData);
+                                    showResponse(userAccount.getPassword());
+                                    Intent IPUpdateIntent=new Intent(MainActivity.this, IPupdate.class);
+                                    IPUpdateIntent.putExtra("User",userAccount);
+                                    startService(IPUpdateIntent);
+                                    Intent intent = new Intent(MainActivity.this, FriendChooseActivity.class);
+                                    intent.putExtra("User",userAccount);
+                                    startActivity(intent);
+                                }
+                            }
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+
+                            }
+                        });
+                /*account=accountEdit.getText().toString();
                 password=passwordEdit.getText().toString();
                 if(remember_passwordCheckBox.isChecked()){
                     editor.putString("account",account);
@@ -155,47 +185,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                                 }
                             });
-                    /*HttpUtil.sendOkHttpRequest("http://"+ HttpUtil.localIP+":8080/okhttp3_test/LoginServlet",new okhttp3.Callback(){
-                        @Override
-                        public void onResponse(Call call,Response response)throws IOException{
-                            String responseData=response.body().string();
-                            List<UserAccount> UserAccountList=Utility.handleAccountResponse(responseData);
-                            boolean accountExist=false;
-                            for(int i=0;i<UserAccountList.size();i++){
-                                if (UserAccountList.get(i).getAccount().equals(account)){
-                                    accountExist=true;
-                                    if (UserAccountList.get(i).getPassword().equals(password)){
-                                        showResponse("OK!");
-                                        User user=new User();
-                                        user.setAccount(account);
-                                        user.setPassword(password);
-                                        user.setName(UserAccountList.get(i).getName());
-                                        user.setAvatar(UserAccountList.get(i).getAvatar());
-                                        user.setFriendsId(UserAccountList.get(i).getFriendsId());
-                                        user.save();
-                                        userAvatarAddress=UserAccountList.get(i).getAvatar();
-                                        editor.putString("userAvatarAddress",userAvatarAddress);
-                                        Intent intent = new Intent(MainActivity.this, FriendChooseActivity.class);
-                                        intent.putExtra("User",UserAccountList.get(i));
-                                        startActivity(intent);
-                                    }else{
-                                        showResponse("password wrong!");
-                                    }
-                                    break;
-                                }
-                            }
-                            if (!accountExist){
-                                showResponse("No this account!");
-                            }
-                        }
 
-                        @Override
-                        public void onFailure(Call call,IOException e){
-                            e.printStackTrace();
-                        }
-                    });*/
                 }
-                editor.apply();
+                editor.apply();*/
                 break;
             case R.id.sign_up:
                 Intent intent=new Intent(MainActivity.this, SignUpActivity.class);
@@ -235,5 +227,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
+/*HttpUtil.sendOkHttpRequest("http://"+ HttpUtil.localIP+":8080/okhttp3_test/LoginServlet",new okhttp3.Callback(){
+                        @Override
+                        public void onResponse(Call call,Response response)throws IOException{
+                            String responseData=response.body().string();
+                            List<UserAccount> UserAccountList=Utility.handleAccountResponse(responseData);
+                            boolean accountExist=false;
+                            for(int i=0;i<UserAccountList.size();i++){
+                                if (UserAccountList.get(i).getAccount().equals(account)){
+                                    accountExist=true;
+                                    if (UserAccountList.get(i).getPassword().equals(password)){
+                                        showResponse("OK!");
+                                        User user=new User();
+                                        user.setAccount(account);
+                                        user.setPassword(password);
+                                        user.setName(UserAccountList.get(i).getName());
+                                        user.setAvatar(UserAccountList.get(i).getAvatar());
+                                        user.setFriendsId(UserAccountList.get(i).getFriendsId());
+                                        user.save();
+                                        userAvatarAddress=UserAccountList.get(i).getAvatar();
+                                        editor.putString("userAvatarAddress",userAvatarAddress);
+                                        Intent intent = new Intent(MainActivity.this, FriendChooseActivity.class);
+                                        intent.putExtra("User",UserAccountList.get(i));
+                                        startActivity(intent);
+                                    }else{
+                                        showResponse("password wrong!");
+                                    }
+                                    break;
+                                }
+                            }
+                            if (!accountExist){
+                                showResponse("No this account!");
+                            }
+                        }
 
+                        @Override
+                        public void onFailure(Call call,IOException e){
+                            e.printStackTrace();
+                        }
+                    });*/
 }
