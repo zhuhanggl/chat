@@ -2,6 +2,7 @@ package com.example.chat;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.LayoutInflaterCompat;
@@ -42,6 +43,7 @@ import okhttp3.Response;
 public class FriendListFragment extends Fragment implements View.OnClickListener {
     private TextView accountText;
     private Button backMainActivity;
+    private Button addFriend;
     private List<Friend> mFriendList=new ArrayList<>();
     private List<Friends> friendsList;
     private UserAccount userAccount;
@@ -53,7 +55,9 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
         View view=inflater.inflate(R.layout.friend_choose,container,false);
         accountText=(TextView)view.findViewById(R.id.title_account_text);//在碎片中，所以要用view
         backMainActivity=(Button)view.findViewById(R.id.back_MainActivity);
+        addFriend=(Button)view.findViewById(R.id.add_friend);
         backMainActivity.setOnClickListener(this);
+        addFriend.setOnClickListener(this);
         swipeRefreshLayout=(SwipeRefreshLayout)view.findViewById(R.id.swipe_refresh);
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
         if (getActivity() instanceof FriendChooseActivity){
@@ -77,7 +81,7 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                DataSupport.deleteAll(Friends.class);
+                //DataSupport.deleteAll(Friends.class);
                 FriendInit();
                 swipeRefreshLayout.setRefreshing(false);//让等待图标消失
             }
@@ -94,6 +98,11 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
             case R.id.back_MainActivity:
                 getActivity().finish();
                 break;
+            case R.id.add_friend:
+                Intent intent=new Intent(getActivity(),SearchActivity.class);
+                intent.putExtra("User",userAccount);
+                startActivity(intent);
+                break;
         }
     }
     private void FriendInit(){
@@ -107,15 +116,15 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
                         List<OneFriend> oneFriendList=userFriend.getOneFriendList();
                         for(int i=0;i<oneFriendList.size();i++){
                             OneFriend oneFriend=oneFriendList.get(i);
-                            Friend friend=new Friend(userFriend.getFriendId(),oneFriend.getAccount(),
+                            Friend friend=new Friend(oneFriend.getId(),oneFriend.getAccount(),
                                     oneFriend.getAvatar(),oneFriend.getName());
                             mFriendList.add(friend);
-                            Friends friends=new Friends();
+                            /*Friends friends=new Friends();
                             friends.setFriendId(userFriend.getFriendId());
                             friends.setAccount(oneFriend.getAccount());
                             friends.setName(oneFriend.getName());
                             friends.setAvatar(oneFriend.getAvatar());
-                            friends.save();
+                            friends.save();*/
                         }
                         getActivity().runOnUiThread(new Runnable() {//需要得到活动才能执行runOnUi
                             //虽然也是在主线程中执行的，但是是在前面的子线程中的程序执行完后才轮到这里执行

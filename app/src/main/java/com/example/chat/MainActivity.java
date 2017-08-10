@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -17,6 +18,7 @@ import com.bumptech.glide.Glide;
 import com.example.chat.db.Friends;
 import com.example.chat.db.User;
 import com.example.chat.gson.UserAccount;
+import com.example.chat.service.ChatService;
 import com.example.chat.service.IPupdate;
 import com.example.chat.util.HttpUtil;
 import com.example.chat.util.SignUpActivity;
@@ -38,7 +40,7 @@ import okhttp3.Response;
 
 import static com.example.chat.util.Utility.handleAccountResponse;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends BaseActivity implements View.OnClickListener{
     private EditText accountEdit;
     private EditText passwordEdit;
     private Button loginButton;
@@ -97,13 +99,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 }else if (responseData.equals("q")){
                                     showResponse("密码错误");
                                 }else {
-                                    showResponse(responseData);
-                                    showResponse("登录中");
+                                    Log.d("MainActivity","login");
                                     UserAccount userAccount=Utility.handleAccountResponse(responseData);
                                     showResponse(userAccount.getPassword());
-                                    Intent IPUpdateIntent=new Intent(MainActivity.this, IPupdate.class);
-                                    IPUpdateIntent.putExtra("User",userAccount);
-                                    startService(IPUpdateIntent);
+                                    Intent chatIntent=new Intent(MainActivity.this, ChatService.class);
+                                    chatIntent.putExtra("User",userAccount);
+                                    startService(chatIntent);
                                     Intent intent = new Intent(MainActivity.this, FriendChooseActivity.class);
                                     intent.putExtra("User",userAccount);
                                     startActivity(intent);
@@ -266,4 +267,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             e.printStackTrace();
                         }
                     });*/
+    @Override
+    protected void onDestroy(){//凡是绑定或打开过service的活动，都需要在最后解绑和停止service
+        super.onDestroy();
+        Intent stopIntent=new Intent(this,ChatService.class);
+        stopService(stopIntent);
+        //webSocket.close(1000,null);//一定要在活动和服务中销毁时将连接中断！！！，否则服务器端会出现错误
+        //但是如果使用后台杀死该程序的话，则不会调用该函数
+    }
 }

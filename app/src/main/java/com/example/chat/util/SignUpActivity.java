@@ -52,7 +52,11 @@ public class SignUpActivity extends AppCompatActivity {
                             @Override
                             public void onResponse(Call call, Response response) throws IOException {
                                 String responseData=response.body().string();
-                                showResponse(responseData);
+                                if(responseData.equals("x")){
+                                    showResponse("该账户已存在，不可重新注册！");
+                                }else if(responseData.equals("a")){
+                                    showResponse("账号"+userAccount.getAccount()+"注册成功！");
+                                }
                             }
                             @Override
                             public void onFailure(Call call, IOException e) {

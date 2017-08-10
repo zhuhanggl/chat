@@ -19,7 +19,7 @@ import okio.BufferedSink;
  */
 
 public class HttpUtil {
-    public static final String localIP="192.168.1.105";
+    public static final String localIP="192.168.1.106";
     public static void sendOkHttpRequest(String address,okhttp3.Callback callback){
         OkHttpClient client=new OkHttpClient();
         Request request=new Request.Builder().url(address).build();
@@ -97,7 +97,7 @@ public class HttpUtil {
         client.newCall(request).enqueue(callback);
     }
 
-    public static void FriendChatConnect(String address, Friend friend, WebSocketListener webSocketListener){
+    public static void FriendChatConnect(String address,WebSocketListener webSocketListener){
         OkHttpClient client=new OkHttpClient();
         /*RequestBody requestBody=new FormBody.Builder()
                 .add("Req","5")
@@ -108,5 +108,20 @@ public class HttpUtil {
                 .build();
         //.post(requestBody)
         client.newWebSocket(request, webSocketListener);
+    }
+
+    public static void sendOkHttpAddFriend(String address, UserAccount userAccount,
+            String friendAccount, okhttp3.Callback callback){
+        OkHttpClient client=new OkHttpClient();
+        RequestBody requestBody=new FormBody.Builder()
+                .add("Req","5")
+                .add("FriendsId",userAccount.getFriendsId())
+                .add("FriendAccount",friendAccount)
+                .build();
+        Request request=new Request.Builder()
+                .url(address)
+                .post(requestBody)
+                .build();
+        client.newCall(request).enqueue(callback);
     }
 }

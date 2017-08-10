@@ -1,12 +1,20 @@
 package com.example.chat;
 
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.chat.gson.UserAccount;
+import com.example.chat.service.ChatService;
 import com.example.chat.service.IPupdate;
 import com.example.chat.util.EchoWebSocketListener;
 import com.example.chat.util.HttpUtil;
@@ -35,9 +44,10 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 
-public class ChatActivity extends AppCompatActivity implements View.OnClickListener{
+public class ChatActivity extends BaseActivity implements View.OnClickListener{
     private EditText sentText;
     private Button sentButton;
+    private TextView friendName;
     private List<Chat> mChatList=new ArrayList<>();
     private Friend friend;
     private UserAccount userAccount;
@@ -46,6 +56,22 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     public DrawerLayout drawerLayout;
     private Button backFriendChooseActivity;
     private WebSocket webSocket;
+    private LocalReceiver localReceiver;
+    private IntentFilter intentFilter;
+    private LocalBroadcastManager localBroadcastManager;
+    private ChatService.ChatBinder chatBinder;
+    private ServiceConnection connection=new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            chatBinder=(ChatService.ChatBinder)iBinder;
+            webSocket=chatBinder.getWebSocket();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,18 +82,25 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_chat);
         sentText=(EditText)findViewById(R.id.sent_text);
         sentButton=(Button)findViewById(R.id.sent_button);
+        friendName=(TextView)findViewById(R.id.friend_name);
+        friendName.setText(friend.getName());
         backFriendChooseActivity=(Button)findViewById(R.id.back_FriendChooseActivity);
         drawerLayout=(DrawerLayout)findViewById(R.id.drawer_layout);
-        chatInit();
-        connect(friend);
+        //connect(friend);
         recyclerView=(RecyclerView)findViewById(R.id.chat_recycler_view);
         LinearLayoutManager layoutManager=new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         chatAdapter=new ChatAdapter(mChatList,userAccount);
         recyclerView.setAdapter(chatAdapter);
+        intentFilter=new IntentFilter();
+        intentFilter.addAction("com.example.chat.service.message");
+        localReceiver=new LocalReceiver();
+        localBroadcastManager=LocalBroadcastManager.getInstance(this);
+        localBroadcastManager.registerReceiver(localReceiver,intentFilter);
+        Intent bindIntent=new Intent(ChatActivity.this,ChatService.class);
+        bindService(bindIntent,connection,BIND_AUTO_CREATE);
         sentButton.setOnClickListener(this);
         backFriendChooseActivity.setOnClickListener(this);
-
     }
     @Override
     public void onClick(View view){
@@ -77,6 +110,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 try{
                     jsonObject.put("From",userAccount.getAccount());
                     jsonObject.put("To",friend.getAccount());
+                    jsonObject.put("ToId",friend.getFriendId());
                     jsonObject.put("Message",sentText.getText().toString());
                 }catch (JSONException e){
                     e.printStackTrace();
@@ -87,15 +121,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.back_FriendChooseActivity:
                 drawerLayout.openDrawer(GravityCompat.START);
         }
-    }
-
-    private void chatInit(){
-        Chat chat=new Chat(friend,"fengkuangneishe",Chat.TYPE_RECEIVED);
-        mChatList.add(chat);
-        chat=new Chat(friend,"shedaohuaiyun",Chat.TYPE_RECEIVED);
-        mChatList.add(chat);
-        chat=new Chat(friend,"kuangcao1xiaoshi",Chat.TYPE_RECEIVED);
-        mChatList.add(chat);
     }
     public UserAccount getUserAccount() {
         return userAccount;
@@ -112,8 +137,10 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         }catch (JSONException e){
             e.printStackTrace();
         }
+        //在手机中，通过左下角的返回键退出程序后，程序还是在内存中，不是真正的退出。但过一段时间系统会
+        //把它所占内存回收掉，此时才是真正意义上的退出
         HttpUtil.FriendChatConnect("ws://"+HttpUtil.localIP+":8080/okhttp3_test/websocket/{"
-                +jsonObject.toString()+"}",friend, new WebSocketListener() {
+                +jsonObject.toString()+"}",new WebSocketListener() {
                     @Override
                     public void onOpen(WebSocket webSocket, Response response) {
                         super.onOpen(webSocket, response);
@@ -135,6 +162,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onClosing(WebSocket webSocket, int code, String reason) {
                         super.onClosing(webSocket, code, reason);
+                        webSocket.close(1000,null);
+                        Log.d("ChatActivity","正在onClosing");
                     }
 
                     @Override
@@ -225,4 +254,21 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        localBroadcastManager.unregisterReceiver(localReceiver);
+        unbindService(connection);
+        //webSocket.close(1000,null);//一定要在活动和服务中销毁时将连接中断！！！，否则服务器端会出现错误
+        //但是如果使用后台杀死该程序的话，则不会调用该函数
+    }
+
+    class LocalReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context,Intent intent){
+            showResponse(intent.getStringExtra("message"));
+        }
+    }
+
 }

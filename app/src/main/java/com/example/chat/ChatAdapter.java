@@ -3,6 +3,7 @@ package com.example.chat;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,14 +80,19 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
         Chat chat=mChatList.get(position);
         if (chat.getType()==Chat.TYPE_RECEIVED){
             viewHolder.friendName.setText(chat.getFriend().getName());
-            Glide.with(mContext).load("http://"+ HttpUtil.localIP+":8000/"+chat.getFriend().getFriendId()
+            Log.d("ChatAdapter","http://"+ HttpUtil.localIP+":8000/user"
+                    +"/"+chat.getFriend().getAvatarId());
+            Glide.with(mContext).load("http://"+ HttpUtil.localIP+":8000/user"
                     +"/"+chat.getFriend().getAvatarId()).into(viewHolder.friendAvatarId);
             //viewHolder.friendAvatarId.setImageResource(chat.getFriend().getAvatarId());
             viewHolder.leftLayout.setVisibility(View.VISIBLE);
             viewHolder.rightLayout.setVisibility(View.GONE);
             viewHolder.leftChat.setText(chat.getChatText());
         }else if(chat.getType()==Chat.TYPE_SENT){
-            Glide.with(mContext).load("http://192.168.1.111/"+userAccount.getAvatar()+".png")
+            Log.d("ChatAdapter","http://"+ HttpUtil.localIP+":8000/user"
+                    +"/"+userAccount.getAvatar());
+            Glide.with(mContext).load("http://"+ HttpUtil.localIP+":8000/user"
+                    +"/"+userAccount.getAvatar())
                     .into(viewHolder.meAvatarId);
             viewHolder.meName.setText(userAccount.getName());
             viewHolder.leftLayout.setVisibility(View.GONE);

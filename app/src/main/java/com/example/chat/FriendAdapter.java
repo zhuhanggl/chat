@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,8 +85,8 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.ViewHolder
     @Override
     public void onBindViewHolder(ViewHolder viewHolder,int position){
         Friend friend=mFriendList.get(position);
-        Glide.with(mContext).load("http://"+ HttpUtil.localIP+":8000/"+
-                friend.getFriendId()+"/"+friend.getAvatarId()).into(viewHolder.AvatarId);
+        Glide.with(mContext).load("http://"+ HttpUtil.localIP+":8000/user" +
+                "/"+friend.getAvatarId()).into(viewHolder.AvatarId);
         viewHolder.name.setText(friend.getName());
     }
     @Override

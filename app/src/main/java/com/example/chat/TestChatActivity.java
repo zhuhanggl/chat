@@ -16,7 +16,7 @@ import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
-public class TestChatActivity extends AppCompatActivity implements View.OnClickListener{
+public class TestChatActivity extends BaseActivity implements View.OnClickListener{
     private TextView chatText;
     private EditText chatContent;
     private Button chatSendButton;
