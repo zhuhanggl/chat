@@ -28,6 +28,7 @@ import com.example.chat.util.EchoWebSocketListener;
 import com.example.chat.util.HttpUtil;
 import com.example.chat.util.Utility;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -99,6 +100,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         localBroadcastManager.registerReceiver(localReceiver,intentFilter);
         Intent bindIntent=new Intent(ChatActivity.this,ChatService.class);
         bindService(bindIntent,connection,BIND_AUTO_CREATE);
+        chatInit();
         sentButton.setOnClickListener(this);
         backFriendChooseActivity.setOnClickListener(this);
     }
@@ -269,6 +271,41 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         public void onReceive(Context context,Intent intent){
             showResponse(intent.getStringExtra("message"));
         }
+    }
+
+    private void chatInit(){
+        HttpUtil.sendOkHttpChatInit("http://" + HttpUtil.localIP + ":8080/okhttp3_test/LoginServlet"
+                , userAccount, friend, new Callback() {
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        String responseData=response.body().string();
+                        try{
+                            JSONArray jsonArray=new JSONArray(responseData);
+                            for (int i=0;i<jsonArray.length();i++){
+                                JSONObject jsonObject=jsonArray.getJSONObject(i);
+                                String fromAccount=jsonObject.getString("FromAccount");
+                                String toAccount=jsonObject.getString("ToAccount");
+                                String message=jsonObject.getString("Message");
+                                if (fromAccount.equals(friend.getAccount())){
+                                    Chat chat=new Chat(friend,message,Chat.TYPE_RECEIVED);
+                                    mChatList.add(chat);
+                                    recyclerView.scrollToPosition(mChatList.size()-1);
+                                }
+                                if (toAccount.equals(friend.getAccount())){
+                                    Chat chat=new Chat(friend,message,Chat.TYPE_SENT);
+                                    mChatList.add(chat);
+                                    recyclerView.scrollToPosition(mChatList.size()-1);
+                                }
+                            }
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+
+                    }
+                });
     }
 
 }

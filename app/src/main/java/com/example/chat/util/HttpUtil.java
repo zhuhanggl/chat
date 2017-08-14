@@ -19,7 +19,7 @@ import okio.BufferedSink;
  */
 
 public class HttpUtil {
-    public static final String localIP="192.168.1.106";
+    public static final String localIP="192.168.1.105";
     public static void sendOkHttpRequest(String address,okhttp3.Callback callback){
         OkHttpClient client=new OkHttpClient();
         Request request=new Request.Builder().url(address).build();
@@ -117,6 +117,21 @@ public class HttpUtil {
                 .add("Req","5")
                 .add("FriendsId",userAccount.getFriendsId())
                 .add("FriendAccount",friendAccount)
+                .build();
+        Request request=new Request.Builder()
+                .url(address)
+                .post(requestBody)
+                .build();
+        client.newCall(request).enqueue(callback);
+    }
+
+    public static void sendOkHttpChatInit(String address, UserAccount userAccount,
+            Friend friend, okhttp3.Callback callback){
+        OkHttpClient client=new OkHttpClient();
+        RequestBody requestBody=new FormBody.Builder()
+                .add("Req","6")
+                .add("FriendsId",userAccount.getFriendsId())
+                .add("FriendAccount",friend.getAccount())
                 .build();
         Request request=new Request.Builder()
                 .url(address)
