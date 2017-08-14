@@ -1,6 +1,7 @@
 package com.example.chat.util;
 
 import android.text.TextUtils;
+import android.util.JsonReader;
 
 import com.example.chat.gson.UserAccount;
 import com.example.chat.gson.UserFriend;
@@ -19,7 +20,6 @@ import java.util.List;
  */
 
 public class Utility {
-
     public static UserAccount handleAccountResponse(String response){
         if(!TextUtils.isEmpty(response)){
             try{
@@ -37,7 +37,6 @@ public class Utility {
         }
         return null;
     }
-
     public static UserFriend handleUserFriendResponse(String response){
         if(!TextUtils.isEmpty(response)){
             try{

@@ -10,6 +10,8 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.JsonReader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,12 +66,27 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
             FriendChooseActivity friendChoose=(FriendChooseActivity) getActivity();
             userAccount=friendChoose.getUserAccount();
             accountText.setText(userAccount.getName());
+            FriendInit();
         }else {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        Thread.sleep(100);
+                        FriendInit();//在chatActivity的抽屉加载中采用子线程延时加载的原因是
+                        //由于chatActivity中还有chatInit，这也是一个网络请求，且该chatInit的网络请求
+                        //的优先级更高，如果没有先后顺序，FriendInit和chatActivity几乎同时进行网络请求
+                        //而且所请求的网址是相同的网址，则会出现bug，导致二者请求的数据为空
+                        //遇到有时能运行有时不能运行的bug时，很有可能是子线程的问题
+                    }catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
             ChatActivity chatActivity=(ChatActivity) getActivity();
             userAccount=chatActivity.getUserAccount();
             accountText.setText(userAccount.getName());//这句话是bug所在！！！
         }
-        FriendInit();
         RecyclerView recyclerView=(RecyclerView)view.findViewById(R.id.friend_recycler_view);
         LinearLayoutManager layoutManager=new LinearLayoutManager(getActivity());//这里有可能是个BUG
         recyclerView.setLayoutManager(layoutManager);
@@ -107,11 +124,13 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
     }
     private void FriendInit(){
         mFriendList.clear();
+        Log.d("FriendListFragment","FriendInit()");
         HttpUtil.sendOkHttpFriendsLoading("http://" + HttpUtil.localIP + ":8080/okhttp3_test/LoginServlet",
                 userAccount,new okhttp3.Callback(){//内部属于子线程
                     @Override
                     public void onResponse(Call call, Response response)throws IOException {
                         String responseData=response.body().string();
+
                         UserFriend userFriend=Utility.handleUserFriendResponse(responseData);
                         List<OneFriend> oneFriendList=userFriend.getOneFriendList();
                         for(int i=0;i<oneFriendList.size();i++){
@@ -141,7 +160,7 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
                         e.printStackTrace();
                     }
                 });
-        showResponse("OK!(not fromDB)");
+        //showResponse("OK!(not fromDB)");
 
 
 

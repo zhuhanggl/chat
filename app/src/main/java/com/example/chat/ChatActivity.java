@@ -87,7 +87,6 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         friendName.setText(friend.getName());
         backFriendChooseActivity=(Button)findViewById(R.id.back_FriendChooseActivity);
         drawerLayout=(DrawerLayout)findViewById(R.id.drawer_layout);
-        //connect(friend);
         recyclerView=(RecyclerView)findViewById(R.id.chat_recycler_view);
         LinearLayoutManager layoutManager=new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -128,112 +127,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         return userAccount;
     }
 
-    private void connect(Friend friend) {
-        JSONObject jsonObject=new JSONObject();
-        try{
-            jsonObject.put("Id",userAccount.getFriendsId());
-            jsonObject.put("Account",userAccount.getAccount());
-            jsonObject.put("Name",userAccount.getName());//生成的不带括号
-            jsonObject.put("FriendId",friend.getFriendId());
-            jsonObject.put("FriendAccount",friend.getAccount());
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
-        //在手机中，通过左下角的返回键退出程序后，程序还是在内存中，不是真正的退出。但过一段时间系统会
-        //把它所占内存回收掉，此时才是真正意义上的退出
-        HttpUtil.FriendChatConnect("ws://"+HttpUtil.localIP+":8080/okhttp3_test/websocket/{"
-                +jsonObject.toString()+"}",new WebSocketListener() {
-                    @Override
-                    public void onOpen(WebSocket webSocket, Response response) {
-                        super.onOpen(webSocket, response);
-                        showResponse("连接成功");
-                        ChatActivity.this.webSocket=webSocket;
-                    }
 
-                    @Override
-                    public void onMessage(WebSocket webSocket, String text) {
-                        super.onMessage(webSocket, text);
-                        showResponse(text);
-                    }
-
-                    @Override
-                    public void onMessage(WebSocket webSocket, ByteString bytes) {
-                        super.onMessage(webSocket, bytes);
-                    }
-
-                    @Override
-                    public void onClosing(WebSocket webSocket, int code, String reason) {
-                        super.onClosing(webSocket, code, reason);
-                        webSocket.close(1000,null);
-                        Log.d("ChatActivity","正在onClosing");
-                    }
-
-                    @Override
-                    public void onClosed(WebSocket webSocket, int code, String reason) {
-                        super.onClosed(webSocket, code, reason);
-                    }
-
-                    @Override
-                    public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-                        super.onFailure(webSocket, t, response);
-                    }
-                });
-    }
-    /*private void connect(Friend friend) {
-        HttpUtil.sendOkHttpFriendIP("http://" + HttpUtil.localIP + ":8080/okhttp3_test/LoginServlet",
-                friend,new Callback() {
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        String FriendIP=response.body().string();
-                        showResponse(FriendIP);
-                        Request request = new Request.Builder()
-                                .url("ws://echo.websocket.org")
-                                .build();
-                        OkHttpClient client = new OkHttpClient();
-                        client.newWebSocket(request, new WebSocketListener() {
-                            @Override
-                            public void onOpen(WebSocket webSocket, Response response) {
-                                super.onOpen(webSocket, response);
-                                showResponse("连接成功");
-                                ChatActivity.this.webSocket=webSocket;
-                                webSocket.send("hello world");
-                            }
-
-                            @Override
-                            public void onMessage(WebSocket webSocket, String text) {
-                                super.onMessage(webSocket, text);
-                                showResponse(text);
-                            }
-
-                            @Override
-                            public void onMessage(WebSocket webSocket, ByteString bytes) {
-                                super.onMessage(webSocket, bytes);
-                            }
-
-                            @Override
-                            public void onClosing(WebSocket webSocket, int code, String reason) {
-                                super.onClosing(webSocket, code, reason);
-                            }
-
-                            @Override
-                            public void onClosed(WebSocket webSocket, int code, String reason) {
-                                super.onClosed(webSocket, code, reason);
-                            }
-
-                            @Override
-                            public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-                                super.onFailure(webSocket, t, response);
-                            }
-                        });
-
-                        client.dispatcher().executorService().shutdown();
-                    }
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-
-                    }
-                });
-    }*/
     public void sendMessage(String string){
         Chat chat=new Chat(friend,string,Chat.TYPE_SENT);
         mChatList.add(chat);
@@ -241,18 +135,15 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         recyclerView.scrollToPosition(mChatList.size()-1);
         sentText.setText("");
     }
-    public void receiveMessage(String string){
-        Chat chat=new Chat(friend,string,Chat.TYPE_RECEIVED);
-        mChatList.add(chat);
-        //chatAdapter.notifyItemInserted(mChatList.size()-1);//动态过程中要注意刷新！！
-        recyclerView.scrollToPosition(mChatList.size()-1);
-        sentText.setText("");
-    }
-    private void showResponse(final String response){
+    private void showMessage(final Friend friend,final String message,final int messageType){
+        //由于friend和message和messageType要应用于内部类，所以要定义为final
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                receiveMessage(response);
+                Chat chat=new Chat(friend,message,messageType);
+                mChatList.add(chat);
+                //chatAdapter.notifyItemInserted(mChatList.size()-1);//动态过程中要注意刷新！！
+                recyclerView.scrollToPosition(mChatList.size()-1);
             }
         });
     }
@@ -269,7 +160,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
     class LocalReceiver extends BroadcastReceiver{
         @Override
         public void onReceive(Context context,Intent intent){
-            showResponse(intent.getStringExtra("message"));
+
         }
     }
 
@@ -287,14 +178,10 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
                                 String toAccount=jsonObject.getString("ToAccount");
                                 String message=jsonObject.getString("Message");
                                 if (fromAccount.equals(friend.getAccount())){
-                                    Chat chat=new Chat(friend,message,Chat.TYPE_RECEIVED);
-                                    mChatList.add(chat);
-                                    recyclerView.scrollToPosition(mChatList.size()-1);
+                                    showMessage(friend,message,Chat.TYPE_RECEIVED);
                                 }
                                 if (toAccount.equals(friend.getAccount())){
-                                    Chat chat=new Chat(friend,message,Chat.TYPE_SENT);
-                                    mChatList.add(chat);
-                                    recyclerView.scrollToPosition(mChatList.size()-1);
+                                    showMessage(friend,message,Chat.TYPE_SENT);
                                 }
                             }
                         }catch (Exception e){

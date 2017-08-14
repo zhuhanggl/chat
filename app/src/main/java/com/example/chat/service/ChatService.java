@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.example.chat.ChatActivity;
 import com.example.chat.Friend;
+import com.example.chat.FriendChooseActivity;
 import com.example.chat.gson.UserAccount;
 import com.example.chat.util.HttpUtil;
 
@@ -84,6 +85,7 @@ public class ChatService extends Service {
             @Override
             public void onMessage(WebSocket webSocket, String text) {
                 super.onMessage(webSocket, text);
+
                 Intent intent=new Intent("com.example.chat.service.message");
                 intent.putExtra("message",text);
                 localBroadcastManager.sendBroadcast(intent);

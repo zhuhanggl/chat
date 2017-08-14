@@ -80,8 +80,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
         Chat chat=mChatList.get(position);
         if (chat.getType()==Chat.TYPE_RECEIVED){
             viewHolder.friendName.setText(chat.getFriend().getName());
-            Log.d("ChatAdapter","http://"+ HttpUtil.localIP+":8000/user"
-                    +"/"+chat.getFriend().getAvatarId());
             Glide.with(mContext).load("http://"+ HttpUtil.localIP+":8000/user"
                     +"/"+chat.getFriend().getAvatarId()).into(viewHolder.friendAvatarId);
             //viewHolder.friendAvatarId.setImageResource(chat.getFriend().getAvatarId());
@@ -89,8 +87,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
             viewHolder.rightLayout.setVisibility(View.GONE);
             viewHolder.leftChat.setText(chat.getChatText());
         }else if(chat.getType()==Chat.TYPE_SENT){
-            Log.d("ChatAdapter","http://"+ HttpUtil.localIP+":8000/user"
-                    +"/"+userAccount.getAvatar());
             Glide.with(mContext).load("http://"+ HttpUtil.localIP+":8000/user"
                     +"/"+userAccount.getAvatar())
                     .into(viewHolder.meAvatarId);
