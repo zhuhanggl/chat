@@ -139,4 +139,19 @@ public class HttpUtil {
                 .build();
         client.newCall(request).enqueue(callback);
     }
+
+    public static void sendOkHttpFriendData(String address, String UserId,
+                                            String FriendAccount, okhttp3.Callback callback){
+        OkHttpClient client=new OkHttpClient();
+        RequestBody requestBody=new FormBody.Builder()
+                .add("Req","7")
+                .add("UserId",UserId)
+                .add("FriendAccount",FriendAccount)
+                .build();
+        Request request=new Request.Builder()
+                .url(address)
+                .post(requestBody)
+                .build();
+        client.newCall(request).enqueue(callback);
+    }
 }

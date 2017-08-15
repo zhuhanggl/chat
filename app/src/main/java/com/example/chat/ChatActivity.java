@@ -65,6 +65,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             chatBinder=(ChatService.ChatBinder)iBinder;
+            chatBinder.setFriend(friend);
             webSocket=chatBinder.getWebSocket();
         }
 
@@ -78,6 +79,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         super.onCreate(savedInstanceState);
         Intent intent=getIntent();
         friend=(Friend)intent.getSerializableExtra("friend");//java是讲究顺序的！！！,不讲究顺序的是声明！
+        Log.d("ChatActivity",friend.getName());
         userAccount=(UserAccount)intent.getSerializableExtra("user");
         //逻辑顺序还是有的！！！
         setContentView(R.layout.activity_chat);
@@ -160,7 +162,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
     class LocalReceiver extends BroadcastReceiver{
         @Override
         public void onReceive(Context context,Intent intent){
-
+            showMessage(friend,intent.getStringExtra("message"),Chat.TYPE_RECEIVED);
         }
     }
 
