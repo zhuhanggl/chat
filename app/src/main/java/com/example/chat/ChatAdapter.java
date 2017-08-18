@@ -2,6 +2,8 @@ package com.example.chat;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,6 +37,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
         TextView rightChat;
         TextView meName;
         ImageView meAvatarId;
+        ImageView rightImage;
+        ImageView leftImage;
         View chatview;
         LinearLayout leftLayout;
         LinearLayout rightLayout;
@@ -46,6 +50,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
             friendAvatarId=(ImageView)view.findViewById(R.id.friend_Avatar);
             leftChat=(TextView)view.findViewById(R.id.left_chat);
             rightChat=(TextView)view.findViewById(R.id.right_chat);
+            rightImage=(ImageView)view.findViewById(R.id.right_image);
+            leftImage=(ImageView)view.findViewById(R.id.left_image);
             meName=(TextView)view.findViewById(R.id.me_name);
             meAvatarId=(ImageView)view.findViewById(R.id.me_Avatar);
             leftLayout=(LinearLayout)view.findViewById(R.id.left_layout);
@@ -79,23 +85,59 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
         //文字和图片的填入
         Chat chat=mChatList.get(position);
         if (chat.getType()==Chat.TYPE_RECEIVED){
-            viewHolder.friendName.setText(chat.getFriend().getName());
-            Glide.with(mContext).load("http://"+ HttpUtil.localIP+":8000/user"
-                    +"/"+chat.getFriend().getAvatarId()).into(viewHolder.friendAvatarId);
-            //viewHolder.friendAvatarId.setImageResource(chat.getFriend().getAvatarId());
-            viewHolder.leftLayout.setVisibility(View.VISIBLE);
-            viewHolder.rightLayout.setVisibility(View.GONE);
-            viewHolder.leftChat.setText(chat.getChatText());
-        }else if(chat.getType()==Chat.TYPE_SENT){
-            Glide.with(mContext).load("http://"+ HttpUtil.localIP+":8000/user"
-                    +"/"+userAccount.getAvatar())
-                    .into(viewHolder.meAvatarId);
-            viewHolder.meName.setText(userAccount.getName());
-            viewHolder.leftLayout.setVisibility(View.GONE);
-            viewHolder.rightLayout.setVisibility(View.VISIBLE);
-            viewHolder.rightChat.setText(chat.getChatText());
-        }
+            if(chat.getImage()==null){
+                viewHolder.friendName.setText(chat.getFriend().getName());
+                Glide.with(mContext).load("http://"+ HttpUtil.localIP+":8000/user"
+                        +"/"+chat.getFriend().getAvatarId()).into(viewHolder.friendAvatarId);
+                //viewHolder.friendAvatarId.setImageResource(chat.getFriend().getAvatarId());
+                viewHolder.leftLayout.setVisibility(View.VISIBLE);
+                viewHolder.rightLayout.setVisibility(View.GONE);
+                viewHolder.leftChat.setVisibility(View.VISIBLE);
+                viewHolder.leftImage.setVisibility(View.GONE);
+                viewHolder.rightImage.setVisibility(View.GONE);
+                viewHolder.leftChat.setText(chat.getChatText());
+            }else{
+                Glide.with(mContext).load("http://"+ HttpUtil.localIP+":8000/user"
+                        +"/"+userAccount.getAvatar())
+                        .into(viewHolder.meAvatarId);
+                viewHolder.meName.setText(userAccount.getName());
+                viewHolder.leftLayout.setVisibility(View.VISIBLE);
+                viewHolder.rightLayout.setVisibility(View.GONE);
+                viewHolder.leftChat.setVisibility(View.GONE);
+                viewHolder.leftImage.setVisibility(View.VISIBLE);
+                viewHolder.rightImage.setVisibility(View.GONE);
+                Glide.with(mContext).load(chat.getImage())
+                        .into(viewHolder.leftImage);
 
+            }
+
+        }else if(chat.getType()==Chat.TYPE_SENT){
+            if(chat.getImage()==null){
+                Glide.with(mContext).load("http://"+ HttpUtil.localIP+":8000/user"
+                        +"/"+userAccount.getAvatar())
+                        .into(viewHolder.meAvatarId);
+                viewHolder.meName.setText(userAccount.getName());
+                viewHolder.leftLayout.setVisibility(View.GONE);
+                viewHolder.rightLayout.setVisibility(View.VISIBLE);
+                viewHolder.rightChat.setVisibility(View.VISIBLE);
+                viewHolder.leftImage.setVisibility(View.GONE);
+                viewHolder.rightImage.setVisibility(View.GONE);
+                viewHolder.rightChat.setText(chat.getChatText());
+            }else {
+                Glide.with(mContext).load("http://"+ HttpUtil.localIP+":8000/user"
+                        +"/"+userAccount.getAvatar())
+                        .into(viewHolder.meAvatarId);
+                viewHolder.meName.setText(userAccount.getName());
+                viewHolder.leftLayout.setVisibility(View.GONE);
+                viewHolder.rightLayout.setVisibility(View.VISIBLE);
+                viewHolder.rightChat.setVisibility(View.GONE);
+                viewHolder.leftImage.setVisibility(View.GONE);
+                viewHolder.rightImage.setVisibility(View.VISIBLE);
+                Log.d("chat.getImage()",chat.getImage());
+                Glide.with(mContext).load(chat.getImage())
+                       .into(viewHolder.rightImage);
+            }
+        }
     }
     @Override
     public int getItemCount(){

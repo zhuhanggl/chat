@@ -2,6 +2,7 @@ package com.example.chat;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Environment;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import com.example.chat.util.Utility;
 
 import org.litepal.crud.DataSupport;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -45,6 +47,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
     private EditText passwordEdit;
     private Button loginButton;
     private Button signUpButton;
+    private Button testButton;
     private CheckBox remember_passwordCheckBox;
     private ImageView userAvatar;
     SharedPreferences.Editor editor;
@@ -63,13 +66,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         accountEdit=(EditText)findViewById(R.id.Account);
         passwordEdit=(EditText)findViewById(R.id.Password);
         userAvatar=(ImageView)findViewById(R.id.user_Avatar);
-        ttt=(TextView)findViewById(R.id.ttt);
-        xxx=(ImageView)findViewById(R.id.xxx);
         remember_passwordCheckBox=(CheckBox)findViewById(R.id.remember_password);
         loginButton=(Button)findViewById(R.id.login);
         loginButton.setOnClickListener(this);
         signUpButton=(Button)findViewById(R.id.sign_up);
         signUpButton.setOnClickListener(this);
+        testButton=(Button)findViewById(R.id.test);
+        testButton.setOnClickListener(this);
         pref=getSharedPreferences("data",MODE_PRIVATE);
         editor=getSharedPreferences("data",MODE_PRIVATE).edit();
         Boolean isRememberPassword=pref.getBoolean("remember_password",false);
@@ -207,6 +210,19 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                 });
                 Intent intent=new Intent(this, TestChatActivity.class);
                 startActivity(intent);*/
+                break;
+            case R.id.test:
+                HttpUtil.sendOkHttpMultipart("http://" + HttpUtil.localIP + ":8080/okhttp3_test/FileServlet"
+                        , new File("/sdcard/t.png"), new Callback() {
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+
+                            }
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+
+                            }
+                        });
                 break;
         }
     }

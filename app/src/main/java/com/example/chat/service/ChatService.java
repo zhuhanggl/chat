@@ -102,9 +102,18 @@ public class ChatService extends Service {
                 try{
                     ChatService.this.jsonObject=new JSONObject(text);
                     if (friend.getAccount().equals(ChatService.this.jsonObject.getString("FromAccount"))){
-                        Intent intent=new Intent("com.example.chat.service.message");
-                        intent.putExtra("message",ChatService.this.jsonObject.getString("Message"));
-                        localBroadcastManager.sendBroadcast(intent);//通过广播把收到的消息传到chatActivity
+                        if(ChatService.this.jsonObject.getString("Type").equals("message")){
+                            Intent intent=new Intent("com.example.chat.service.message");
+                            intent.putExtra("Type","message");
+                            intent.putExtra("message",ChatService.this.jsonObject.getString("Message"));
+                            localBroadcastManager.sendBroadcast(intent);//通过广播把收到的消息传到chatActivity
+                        }else if (ChatService.this.jsonObject.getString("Type").equals("imagePath")){
+                            Intent intent=new Intent("com.example.chat.service.message");
+                            intent.putExtra("Type","imagePath");
+                            intent.putExtra("imagePath",ChatService.this.jsonObject.getString("ImagePath"));
+                            localBroadcastManager.sendBroadcast(intent);//通过广播把收到的消息传到chatActivity
+                        }
+
                     }else{
                         Log.d("ChatService","ELSE!!!!!");
                         HttpUtil.sendOkHttpFriendData("http://" + HttpUtil.localIP +

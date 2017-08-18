@@ -11,11 +11,13 @@ public class Chat {
     public static final int TYPE_SENT=1;
     private Friend friend;
     private String chatText;
+    private String image;
     private int type;
 
-    public Chat(Friend friend,String chatText,int type){
+    public Chat(Friend friend,String chatText,String image,int type){
         this.friend=friend;
         this.chatText=chatText;
+        this.image=image;
         this.type=type;
     }
 
@@ -29,5 +31,9 @@ public class Chat {
 
     public String getChatText() {
         return chatText;
+    }
+
+    public String getImage() {
+        return image;
     }
 }

@@ -45,14 +45,24 @@
                 <EditText
                     android:id="@+id/sent_text"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="8"/>
-                <Button
-                    android:id="@+id/sent_button"
+                <RelativeLayout
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2"/>
-            </LinearLayout><!--Relative布局没有weight-->
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2">
+                    <Button
+                        android:id="@+id/sent_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#fff"/>
+                    <Button
+                        android:id="@+id/other_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#f00"/>
+                </RelativeLayout>
+            </LinearLayout>
         </LinearLayout>
         <fragment
             android:id="@+id/friend_list_fragment"

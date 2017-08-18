@@ -1,12 +1,20 @@
 package com.example.chat.util;
 
+import android.util.Log;
+
 import com.example.chat.Friend;
 import com.example.chat.gson.UserAccount;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.Cache;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -19,7 +27,7 @@ import okio.BufferedSink;
  */
 
 public class HttpUtil {
-    public static final String localIP="192.168.1.109";
+    public static final String localIP="192.168.1.106";
     public static void sendOkHttpRequest(String address,okhttp3.Callback callback){
         OkHttpClient client=new OkHttpClient();
         Request request=new Request.Builder().url(address).build();
@@ -153,5 +161,35 @@ public class HttpUtil {
                 .post(requestBody)
                 .build();
         client.newCall(request).enqueue(callback);
+    }
+
+    public static void sendOkHttpMultipart(String address, File mfile, okhttp3.Callback callback){
+        final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
+        List<File>fileList=new ArrayList<>();
+        fileList.add(mfile);
+        MultipartBody.Builder mbody=new MultipartBody.Builder()
+                .setType(MultipartBody.FORM);
+        int i=0;
+        for(File file:fileList){
+            Log.d("sendOkHttpMultipart","for!!!!!!!!!");
+            if(file.exists()){
+                Log.d("sendOkHttpMultipart","file.exists()!!!!!!!!");
+                Log.i("imageName:",file.getName());//经过测试，此处的名称不能相同，如果相同，只能保存最后一个图片，不知道那些同名的大神是怎么成功保存图片的。
+                mbody.addFormDataPart("t",file.getName(),RequestBody.create(MEDIA_TYPE_PNG,file));
+                i++;
+            }
+        }
+        OkHttpClient client=new OkHttpClient();
+        RequestBody requestBody=mbody.build();
+        RequestBody requestBodyx=new FormBody.Builder()
+                .add("Req","8")
+                .build();
+        Request request=new Request.Builder()
+                .header("Authorization", "Client-ID " + "...")
+                .url(address)
+                .post(requestBody)
+                .build();
+        client.newCall(request).enqueue(callback);
+        Log.d("sendOkHttpMultipart","end!!!!!!!!");
     }
 }
