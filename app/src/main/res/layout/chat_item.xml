@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -9,6 +9,7 @@
         android:id="@+id/left_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="10dp"
         android:layout_gravity="left"><!--想要使用left和right，parent要用vertical！！！因为有GONE，所以不会有体积！！！-->
         <LinearLayout
             android:orientation="vertical"
@@ -33,12 +34,12 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:background="@drawable/message_left"/>
-            <ImageView
+            <com.example.chat.image.BubbleImageView
                 android:id="@+id/left_image"
-                android:layout_width="300sp"
-                android:layout_height="300sp"
-                android:layout_gravity="center"
-                android:background="@drawable/message_left"/>
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:adjustViewBounds="true"
+                android:layout_gravity="center" />
         </RelativeLayout>
     </LinearLayout>
 
@@ -46,6 +47,7 @@
         android:id="@+id/right_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="10dp"
         android:layout_gravity="right">
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -56,12 +58,13 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:background="@drawable/message_right"/>
-            <ImageView
+            <com.example.chat.image.BubbleImageView
                 android:id="@+id/right_image"
-                android:layout_width="300sp"
-                android:layout_height="300sp"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:adjustViewBounds="true"
                 android:layout_gravity="center"
-                android:background="@drawable/message_right"/>
+                app:bubble_arrowLocation="right"/>
         </RelativeLayout>
         <LinearLayout
             android:orientation="vertical"

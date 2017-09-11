@@ -73,7 +73,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
     private List<Chat> mChatList=new ArrayList<>();
     private Friend friend;
     private UserAccount userAccount;
-    private RecyclerView recyclerView;
+    public RecyclerView recyclerView;
     private ChatAdapter chatAdapter;
     public DrawerLayout drawerLayout;
     private Button backFriendChooseActivity;
@@ -107,18 +107,39 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         setContentView(R.layout.activity_chat);
         sentText=(EditText)findViewById(R.id.sent_text);
         sentText.setText("");
+        otherButton=(Button)findViewById(R.id.other_button);
+        sentButton=(Button)findViewById(R.id.sent_button);
+        otherButton.setVisibility(View.VISIBLE);
+        sentButton.setVisibility(View.INVISIBLE);
+        otherButton.setOnClickListener(this);
+        sentButton.setOnClickListener(this);
+        /*sentText.setFocusable(false);
+        sentText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chatAdapter.notifyItemInserted(mChatList.size()-1);//动态过程中要注意刷新！！
+                recyclerView.scrollToPosition(mChatList.size()-1);
+            }
+        });*/
         sentText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if(i==0){
                     if(i1==0){
-                        sentButton.setVisibility(View.VISIBLE);
-                        otherButton.setVisibility(View.INVISIBLE);
+                        if(i2>0){
+                            Log.d("1","111111111");
+                            sentButton.setVisibility(View.VISIBLE);
+                            otherButton.setVisibility(View.INVISIBLE);
+                        }else{
+                            Log.d("4","444444444");
+                        }
                     }else{
+                        Log.d("2","2222222222");
                         sentButton.setVisibility(View.INVISIBLE);
                         otherButton.setVisibility(View.VISIBLE);
                     }
                 }else{
+                    Log.d("3","3333333333333");
                     sentButton.setVisibility(View.VISIBLE);
                     otherButton.setVisibility(View.INVISIBLE);
                 }
@@ -126,16 +147,15 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+                Log.d("5","55555555555555");
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
-
+                Log.d("6","666666666666");
             }
         });
-        otherButton=(Button)findViewById(R.id.other_button);
-        sentButton=(Button)findViewById(R.id.sent_button);
+
         friendName=(TextView)findViewById(R.id.friend_name);
         friendName.setText(friend.getName());
         backFriendChooseActivity=(Button)findViewById(R.id.back_FriendChooseActivity);
@@ -143,7 +163,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         recyclerView=(RecyclerView)findViewById(R.id.chat_recycler_view);
         LinearLayoutManager layoutManager=new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        chatAdapter=new ChatAdapter(mChatList,userAccount);
+        chatAdapter=new ChatAdapter(mChatList,userAccount,this);
         recyclerView.setAdapter(chatAdapter);
         intentFilter=new IntentFilter();
         intentFilter.addAction("com.example.chat.service.message");
@@ -153,8 +173,6 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         Intent bindIntent=new Intent(ChatActivity.this,ChatService.class);
         bindService(bindIntent,connection,BIND_AUTO_CREATE);
         chatInit();
-        otherButton.setOnClickListener(this);
-        sentButton.setOnClickListener(this);
         backFriendChooseActivity.setOnClickListener(this);
     }
     @Override
@@ -315,11 +333,9 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         }
     }
 
-
     public UserAccount getUserAccount() {
         return userAccount;
     }
-
 
     public void sendMessage(final String string){
         runOnUiThread(new Runnable() {
@@ -327,8 +343,10 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
             public void run() {
                 Chat chat=new Chat(friend,string,null,Chat.TYPE_SENT);
                 mChatList.add(chat);
-                //chatAdapter.notifyItemInserted(mChatList.size()-1);//动态过程中要注意刷新！！
+                chatAdapter.notifyItemInserted(mChatList.size()-1);//动态过程中要注意刷新！！
                 recyclerView.scrollToPosition(mChatList.size()-1);
+                //上面两句若不放在主线程中，在手机端则无法显示出列表中的内容
+                Log.d("sendMessage",string+"!!!!!!!!!!!!");
                 sentText.setText("");
             }
         });
@@ -339,9 +357,10 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
             public void run() {
                 Chat chat=new Chat(friend,null,imagePath,messageType);
                 mChatList.add(chat);
-                //chatAdapter.notifyItemInserted(mChatList.size()-1);//动态过程中要注意刷新！！
+                chatAdapter.notifyItemInserted(mChatList.size()-1);//动态过程中要注意刷新！！
                 recyclerView.scrollToPosition(mChatList.size()-1);
-                sentText.setText("");
+                //sentText.setText("");
+                Log.d("showImage",imagePath+"!!!!!!!!!!!!");
             }
         });
     }
@@ -353,8 +372,9 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
             public void run() {
                 Chat chat=new Chat(friend,message,null,messageType);
                 mChatList.add(chat);
-                //chatAdapter.notifyItemInserted(mChatList.size()-1);//动态过程中要注意刷新！！
+                chatAdapter.notifyItemInserted(mChatList.size()-1);//动态过程中要注意刷新！！
                 recyclerView.scrollToPosition(mChatList.size()-1);
+                Log.d("showMessage",message+"!!!!!!!!!!!!");
             }
         });
     }
@@ -374,9 +394,8 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
             if(intent.getStringExtra("Type").equals("message")){
                 showMessage(friend,intent.getStringExtra("message"),Chat.TYPE_RECEIVED);
             }else if(intent.getStringExtra("Type").equals("imagePath")){
-
+                showImage(friend,intent.getStringExtra("imagePath"),Chat.TYPE_RECEIVED);
             }
-
         }
     }
 
@@ -396,22 +415,42 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
                                 String image=jsonObject.getString("ImagePath");
                                 if (fromAccount.equals(friend.getAccount())){
                                     if (message.equals("")){
-                                        showImage(friend,image,Chat.TYPE_RECEIVED);
+                                        //showImage(friend,image,Chat.TYPE_RECEIVED);
+                                        Chat chat=new Chat(friend,null,image,Chat.TYPE_RECEIVED);
+                                        mChatList.add(chat);
                                     }else{
-                                        showMessage(friend,message,Chat.TYPE_RECEIVED);
+                                        Chat chat=new Chat(friend,message,null,Chat.TYPE_RECEIVED);
+                                        mChatList.add(chat);
+                                        //showMessage(friend,message,Chat.TYPE_RECEIVED);
                                     }
                                 }
                                 if (toAccount.equals(friend.getAccount())){
                                     if (message.equals("")){
-                                        showImage(friend,image,Chat.TYPE_SENT);
+                                        //showImage(friend,image,Chat.TYPE_SENT);
+                                        Chat chat=new Chat(friend,null,image,Chat.TYPE_SENT);
+                                        mChatList.add(chat);
                                     }else{
-                                        showMessage(friend,message,Chat.TYPE_SENT);
+                                        Chat chat=new Chat(friend,message,null,Chat.TYPE_SENT);
+                                        mChatList.add(chat);
+                                        //showMessage(friend,message,Chat.TYPE_SENT);
                                     }
                                 }
                             }
+                            //recyclerView.scrollToPosition(mChatList.size()-1);注意这句放在这里会导致
+                            //在手机端运行时列表中显示不出内容！！！！！必须在主线程中
                         }catch (Exception e){
                             e.printStackTrace();
                         }
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                chatAdapter.notifyItemInserted(mChatList.size()-1);
+                                //只要静态设置imageView的大小，就不会出现到不了底的情况！！
+                                //到不了底是由于动态加载imageView的大小需要耗时，而还没加载完，就执行了下面的
+                                //语句。
+                                recyclerView.scrollToPosition(mChatList.size()-1);
+                            }
+                        });
                     }
                     @Override
                     public void onFailure(Call call, IOException e) {
@@ -419,5 +458,4 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
                     }
                 });
     }
-
 }

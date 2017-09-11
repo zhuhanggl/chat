@@ -13,12 +13,18 @@ public class Chat {
     private String chatText;
     private String image;
     private int type;
+    private int imageWidth;
+    private int imageHeight;
+    private ChatAdapter.ViewHolder viewHolder;
 
     public Chat(Friend friend,String chatText,String image,int type){
         this.friend=friend;
         this.chatText=chatText;
         this.image=image;
         this.type=type;
+        imageWidth=0;
+        imageHeight=0;
+        viewHolder=null;
     }
 
     public int getType() {
@@ -35,5 +41,29 @@ public class Chat {
 
     public String getImage() {
         return image;
+    }
+
+    public ChatAdapter.ViewHolder getViewHolder() {
+        return viewHolder;
+    }
+
+    public void setViewHolder(ChatAdapter.ViewHolder viewHolder) {
+        this.viewHolder = viewHolder;
+    }
+
+    public int getImageHeight() {
+        return imageHeight;
+    }
+
+    public void setImageHeight(int imageHeight) {
+        this.imageHeight = imageHeight;
+    }
+
+    public int getImageWidth() {
+        return imageWidth;
+    }
+
+    public void setImageWidth(int imageWidth) {
+        this.imageWidth = imageWidth;
     }
 }

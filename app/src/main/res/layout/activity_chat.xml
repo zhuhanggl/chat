@@ -55,11 +55,13 @@
                         android:id="@+id/sent_button"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:text="sent"
                         android:background="#fff"/>
                     <Button
                         android:id="@+id/other_button"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:text="other"
                         android:background="#f00"/>
                 </RelativeLayout>
             </LinearLayout>
