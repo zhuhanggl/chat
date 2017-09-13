@@ -27,7 +27,7 @@ import okio.BufferedSink;
  */
 
 public class HttpUtil {
-    public static final String localIP="192.168.1.118";
+    public static final String localIP="172.18.60.90";
     public static void sendOkHttpRequest(String address,okhttp3.Callback callback){
         OkHttpClient client=new OkHttpClient();
         Request request=new Request.Builder().url(address).build();

@@ -161,7 +161,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         backFriendChooseActivity=(Button)findViewById(R.id.back_FriendChooseActivity);
         drawerLayout=(DrawerLayout)findViewById(R.id.drawer_layout);
         recyclerView=(RecyclerView)findViewById(R.id.chat_recycler_view);
-        LinearLayoutManager layoutManager=new LinearLayoutManager(this);
+        LinearLayoutManager layoutManager=new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
         chatAdapter=new ChatAdapter(mChatList,userAccount,this);
         recyclerView.setAdapter(chatAdapter);

@@ -132,28 +132,30 @@ public class FriendListFragment extends Fragment implements View.OnClickListener
                         String responseData=response.body().string();
 
                         UserFriend userFriend=Utility.handleUserFriendResponse(responseData);
-                        List<OneFriend> oneFriendList=userFriend.getOneFriendList();
-                        for(int i=0;i<oneFriendList.size();i++){
-                            OneFriend oneFriend=oneFriendList.get(i);
-                            Friend friend=new Friend(oneFriend.getId(),oneFriend.getAccount(),
-                                    oneFriend.getAvatar(),oneFriend.getName());
-                            mFriendList.add(friend);
+                        if(userFriend!=null){
+                            List<OneFriend> oneFriendList=userFriend.getOneFriendList();
+                            for(int i=0;i<oneFriendList.size();i++){
+                                OneFriend oneFriend=oneFriendList.get(i);
+                                Friend friend=new Friend(oneFriend.getId(),oneFriend.getAccount(),
+                                        oneFriend.getAvatar(),oneFriend.getName());
+                                mFriendList.add(friend);
                             /*Friends friends=new Friends();
                             friends.setFriendId(userFriend.getFriendId());
                             friends.setAccount(oneFriend.getAccount());
                             friends.setName(oneFriend.getName());
                             friends.setAvatar(oneFriend.getAvatar());
                             friends.save();*/
-                        }
-                        getActivity().runOnUiThread(new Runnable() {//需要得到活动才能执行runOnUi
-                            //虽然也是在主线程中执行的，但是是在前面的子线程中的程序执行完后才轮到这里执行
-                            @Override
-                            public void run() {
-                                friendAdapter.notifyDataSetChanged();//这也属于UI操作，还有该函数放在这里而不是放在
-                                //刷新函数中FriendInit();的后面的原因是，该方法必须放在子线程中等待被调用，否则没等
-                                //FriendInit()执行完，friendAdapter.notifyDataSetChanged()就执行结束了
                             }
-                        });
+                            getActivity().runOnUiThread(new Runnable() {//需要得到活动才能执行runOnUi
+                                //虽然也是在主线程中执行的，但是是在前面的子线程中的程序执行完后才轮到这里执行
+                                @Override
+                                public void run() {
+                                    friendAdapter.notifyDataSetChanged();//这也属于UI操作，还有该函数放在这里而不是放在
+                                    //刷新函数中FriendInit();的后面的原因是，该方法必须放在子线程中等待被调用，否则没等
+                                    //FriendInit()执行完，friendAdapter.notifyDataSetChanged()就执行结束了
+                                }
+                            });
+                        }
                     }
                     @Override
                     public void onFailure(Call call,IOException e){

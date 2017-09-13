@@ -142,14 +142,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
         //文字和图片的填入
         chat=mChatList.get(position);
         Log.d("position","position="+position);
-        Log.d("chushi"+position+" width 139"," "+mChatList.get(139).getImageWidth());
-        Log.d("chushi"+position+" height 139"," "+mChatList.get(139).getImageHeight());
-        Log.d("chushi"+position+" width 140"," "+mChatList.get(140).getImageWidth());
-        Log.d("chushi"+position+" height 140"," "+mChatList.get(140).getImageHeight());
-        Log.d("chushi"+position+" width 141"," "+mChatList.get(141).getImageWidth());
-        Log.d("chushi"+position+" height 141"," "+mChatList.get(141).getImageHeight());
-        Log.d("chushi"+position+" width 142"," "+mChatList.get(142).getImageWidth());
-        Log.d("chushi"+position+" height 142"," "+mChatList.get(142).getImageHeight());
         /*if (chat.getViewHolder()!=null){
             viewHolder.equals(chat.getViewHolder());
         }else{
