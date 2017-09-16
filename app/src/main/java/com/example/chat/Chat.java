@@ -17,13 +17,13 @@ public class Chat {
     private int imageHeight;
     private ChatAdapter.ViewHolder viewHolder;
 
-    public Chat(Friend friend,String chatText,String image,int type){
+    public Chat(Friend friend,String chatText,String image,int imageWidth,int imageHeight,int type){
         this.friend=friend;
         this.chatText=chatText;
         this.image=image;
+        this.imageWidth=imageWidth;
+        this.imageHeight=imageHeight;
         this.type=type;
-        imageWidth=0;
-        imageHeight=0;
         viewHolder=null;
     }
 

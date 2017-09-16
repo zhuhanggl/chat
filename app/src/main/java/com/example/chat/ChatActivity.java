@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.icu.text.LocaleDisplayNames;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
@@ -40,6 +41,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.chat.gson.UserAccount;
+import com.example.chat.image.BitmapUtils;
+import com.example.chat.image.ImageSize;
 import com.example.chat.service.ChatService;
 import com.example.chat.service.IPupdate;
 import com.example.chat.util.EchoWebSocketListener;
@@ -51,6 +54,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -285,22 +289,28 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
     }
     private void sendOkHttpImage(){
         HttpUtil.sendOkHttpMultipart("http://" + HttpUtil.localIP + ":8080/okhttp3_test/FileServlet"
-                , new File(imagePath), new Callback() {
+                , imagePath, new Callback() {
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
                         Log.i("imagePath:x ",imagePath);
                         JSONObject jsonObject=new JSONObject();
                         try{
+                            FileInputStream fis = new FileInputStream(imagePath);
+                            Bitmap bitmap= BitmapFactory.decodeStream(fis);
+                            ImageSize imageSize = BitmapUtils.getImageSize(bitmap);
                             jsonObject.put("Type","imagePath");
                             jsonObject.put("From",userAccount.getAccount());
                             jsonObject.put("To",friend.getAccount());
                             jsonObject.put("ToId",friend.getFriendId());
+                            jsonObject.put("imageWidth",imageSize.getWidth());
+                            jsonObject.put("imageHeight",imageSize.getHeight());
                             jsonObject.put("ImagePath",
                                     imagePath.substring(imagePath.lastIndexOf("/"),imagePath.length()));
                             Log.i("imageName",imagePath.substring(imagePath.lastIndexOf("/"),imagePath.length()));
                             webSocket.send(jsonObject.toString());
-                            showImage(friend,imagePath,Chat.TYPE_SENT);
-                        }catch (JSONException e){
+                            showImage(friend,imagePath,imageSize.getWidth(),
+                                    imageSize.getHeight(),Chat.TYPE_SENT);
+                        }catch (Exception e){
                             e.printStackTrace();
                         }
                     }
@@ -341,7 +351,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Chat chat=new Chat(friend,string,null,Chat.TYPE_SENT);
+                Chat chat=new Chat(friend,string,null,0,0,Chat.TYPE_SENT);
                 mChatList.add(chat);
                 chatAdapter.notifyItemInserted(mChatList.size()-1);//动态过程中要注意刷新！！
                 recyclerView.scrollToPosition(mChatList.size()-1);
@@ -351,11 +361,13 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
             }
         });
     }
-    public void showImage(final Friend friend,final String imagePath,final int messageType){
+    public void showImage(final Friend friend,final String imagePath,
+                          final int imageWidth,final int imageHeight,final int messageType){
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Chat chat=new Chat(friend,null,imagePath,messageType);
+                Chat chat=new Chat(friend,null,imagePath,imageWidth,imageHeight
+                        ,messageType);//无需图片大小，直接加载就好
                 mChatList.add(chat);
                 chatAdapter.notifyItemInserted(mChatList.size()-1);//动态过程中要注意刷新！！
                 recyclerView.scrollToPosition(mChatList.size()-1);
@@ -370,7 +382,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Chat chat=new Chat(friend,message,null,messageType);
+                Chat chat=new Chat(friend,message,null,0,0,messageType);
                 mChatList.add(chat);
                 chatAdapter.notifyItemInserted(mChatList.size()-1);//动态过程中要注意刷新！！
                 recyclerView.scrollToPosition(mChatList.size()-1);
@@ -394,7 +406,10 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
             if(intent.getStringExtra("Type").equals("message")){
                 showMessage(friend,intent.getStringExtra("message"),Chat.TYPE_RECEIVED);
             }else if(intent.getStringExtra("Type").equals("imagePath")){
-                showImage(friend,intent.getStringExtra("imagePath"),Chat.TYPE_RECEIVED);
+                showImage(friend,intent.getStringExtra("imagePath"),
+                        Integer.parseInt(intent.getStringExtra("imageWidth")),
+                        Integer.parseInt(intent.getStringExtra("imageHeight")),
+                        Chat.TYPE_RECEIVED);
             }
         }
     }
@@ -415,22 +430,32 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
                                 String image=jsonObject.getString("ImagePath");
                                 if (fromAccount.equals(friend.getAccount())){
                                     if (message.equals("")){
+                                        String imageWidth=jsonObject.getString("ImageWidth");
+                                        String imageHeight=jsonObject.getString("ImageHeight");
                                         //showImage(friend,image,Chat.TYPE_RECEIVED);
-                                        Chat chat=new Chat(friend,null,image,Chat.TYPE_RECEIVED);
+                                        Log.d("xxximageWidth",imageWidth);
+                                        Log.d("xxximageHeight",imageHeight);
+                                        Chat chat=new Chat(friend,null,image,Integer.parseInt(imageWidth),
+                                                Integer.parseInt(imageHeight),Chat.TYPE_RECEIVED);
                                         mChatList.add(chat);
                                     }else{
-                                        Chat chat=new Chat(friend,message,null,Chat.TYPE_RECEIVED);
+                                        Chat chat=new Chat(friend,message,null,0,0,Chat.TYPE_RECEIVED);
                                         mChatList.add(chat);
                                         //showMessage(friend,message,Chat.TYPE_RECEIVED);
                                     }
                                 }
                                 if (toAccount.equals(friend.getAccount())){
                                     if (message.equals("")){
+                                        String imageWidth=jsonObject.getString("ImageWidth");
+                                        String imageHeight=jsonObject.getString("ImageHeight");
                                         //showImage(friend,image,Chat.TYPE_SENT);
-                                        Chat chat=new Chat(friend,null,image,Chat.TYPE_SENT);
+                                        Log.d("xxximageWidth",imageWidth);
+                                        Log.d("xxximageHeight",imageHeight);
+                                        Chat chat=new Chat(friend,null,image,Integer.parseInt(imageWidth),
+                                                Integer.parseInt(imageHeight),Chat.TYPE_SENT);
                                         mChatList.add(chat);
                                     }else{
-                                        Chat chat=new Chat(friend,message,null,Chat.TYPE_SENT);
+                                        Chat chat=new Chat(friend,message,null,0,0,Chat.TYPE_SENT);
                                         mChatList.add(chat);
                                         //showMessage(friend,message,Chat.TYPE_SENT);
                                     }

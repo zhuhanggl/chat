@@ -183,148 +183,16 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
                 viewHolder.leftChat.setVisibility(View.GONE);
                 viewHolder.leftImage.setVisibility(View.VISIBLE);
                 viewHolder.rightImage.setVisibility(View.GONE);
-                /*Glide.with(mContext).load(chat.getImage())//内部有子线程
-                        .placeholder(R.drawable.zhanwei)
-                        .into(viewHolder.leftImage);*/
-                /*class GlideTask extends AsyncTask<Void,Integer,Boolean>{
-                    @Override
-                    protected Boolean doInBackground(Void...params){
-                        Log.d("RECEIVE","加载中");
-                        return true;
-                    }
-                    @Override
-                    protected void onPostExecute(Boolean result){
-                    SimpleTarget target =new SimpleTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(final Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                        //内部是UI线程
-                        ImageSize imageSize = BitmapUtils.getImageSize(resource);
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        resource.compress(Bitmap.CompressFormat.JPEG, 40, baos);
-                        byte[] bytes = baos.toByteArray();
-                        final Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                        final ViewGroup.LayoutParams imageLP = viewHolder.leftImage.getLayoutParams();
-                        imageLP.width = imageSize.getWidth();
-                        imageLP.height = imageSize.getHeight();
-                        viewHolder.leftImage.setLayoutParams(imageLP);
-                        viewHolder.leftImage.setImageBitmap(bm);
-                        //showImage(viewHolder.leftImage,R.drawable.message_left);
-                    }
-                };
-                Glide.with(mContext).load(chat.getImage())//内部有子线程
-                        .asBitmap()
-                        .placeholder(R.drawable.zhanwei)
-                        .into(target);
-                    }
-                }*/
-                /*GlideTask glideTask=new GlideTask();
-                viewHolder.leftImage.setTag(R.id.tag_ImageLeft,glideTask);
-                glideTask.execute();*/
                 Log.d(position+" width"," "+chat.getImageWidth());
                 Log.d(position+" height"," "+chat.getImageHeight());
-                if (chat.getImageWidth()==0&&chat.getImageHeight()==0) {
-                    SimpleTarget target =new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(final Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-
-
-                            //内部是UI线程
-                        /*ImageSize imageSize = BitmapUtils.getImageSize(resource);
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        resource.compress(Bitmap.CompressFormat.JPEG, 40, baos);
-                        byte[] bytes = baos.toByteArray();
-                        final Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                        final ViewGroup.LayoutParams imageLP = viewHolder.leftImage.getLayoutParams();
-                        imageLP.width = imageSize.getWidth();
-                        imageLP.height = imageSize.getHeight();
-                        viewHolder.leftImage.setLayoutParams(imageLP);
-                        viewHolder.leftImage.setImageBitmap(bm);*/
-                            ImageSize imageSize = BitmapUtils.getImageSize(resource);
-                            final ViewGroup.LayoutParams imageLP = viewHolder.leftImage.getLayoutParams();
-                            imageLP.width = imageSize.getWidth();
-                            imageLP.height = imageSize.getHeight();
-                            //new Thread(new Runnable() {
-                                //@Override
-                                //public void run() {
-                            mChatList.get(position).setImageWidth(imageLP.width);
-                            mChatList.get(position).setImageHeight(imageLP.height);
-                                    //chat.setImageWidth(imageLP.width);
-                                    //chat.setImageHeight(imageLP.height);
-                            Log.d("if position"+position+" width:"," "+mChatList.get(position).getImageHeight());
-                            Log.d("if position"+position+" Height:"," "+mChatList.get(position).getImageHeight());
-                                //}
-                            //}).start();
-                            viewHolder.leftImage.setLayoutParams(imageLP);
-                            viewHolder.leftImage.setImageBitmap(resource);
-                            //showImage(viewHolder.leftImage,R.drawable.message_left,viewHolder);
-                        }
-                    };
-                    Glide.with(mContext).load(chat.getImage())//内部有子线程
-                            .asBitmap()
-                            .into(target);
-                }else {
-                    Log.d("chat.getImageWidth();","!!!!!!!!");
-                    final ViewGroup.LayoutParams imageLP = viewHolder.leftImage.getLayoutParams();
-                    imageLP.width = chat.getImageWidth();
-                    imageLP.height = chat.getImageHeight();
-                    Log.d("else position"+position+" width:"," "+chat.getImageWidth());
-                    Log.d("else position"+position+" Height:"," "+chat.getImageHeight());
-                    viewHolder.leftImage.setLayoutParams(imageLP);
-                    Glide.with(mContext).load(chat.getImage())//内部有子线程
-                            .into(viewHolder.leftImage);
-                    //showImage(viewHolder.leftImage,R.drawable.message_left,viewHolder);
-                }
-
-
-
-                /*ImageSize imageSize =BitmapUtils.getImageSizeNew(chat.getImage());
-                final ViewGroup.LayoutParams imageLP = viewHolder.rightImage.getLayoutParams();
-                imageLP.width = imageSize.getWidth();
-                imageLP.height = imageSize.getHeight();
-                viewHolder.leftImage.setLayoutParams(imageLP);*/
-                //new Thread(new Runnable() {
-                //@Override
-                //public void run() {
-                //activity.runOnUiThread(new Runnable() {
-                //@Override
-                //public void run() {
-
-                /*Glide.with(mContext).load(chat.getImage())//内部有子线程
+                final ViewGroup.LayoutParams imageLP = viewHolder.leftImage.getLayoutParams();
+                imageLP.width = chat.getImageWidth();
+                imageLP.height = chat.getImageHeight();
+                Log.d("else position"+position+" width:"," "+chat.getImageWidth());
+                Log.d("else position"+position+" Height:"," "+chat.getImageHeight());
+                viewHolder.leftImage.setLayoutParams(imageLP);
+                Glide.with(mContext).load(chat.getImage())//内部有子线程
                         .into(viewHolder.leftImage);
-                //loadIntoUseFitWidth(mContext, chat.getImage(), R.drawable.apple_pic, viewHolder.leftImage);
-                showImage(viewHolder.leftImage,R.drawable.message_left);*/
-                //}
-                //});
-                //}
-                // }).start();
-
-                /*new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try{
-                            final Bitmap bitmap=Glide.with(mContext).load(chat.getImage())//内部有子线程
-                                    .asBitmap()
-                                    .centerCrop()
-                                    .into(500,500)
-                                    .get();
-                            ImageSize imageSize = BitmapUtils.getImageSize(bitmap);
-                            final ViewGroup.LayoutParams imageLP = viewHolder.leftImage.getLayoutParams();
-                            imageLP.width = imageSize.getWidth();
-                            imageLP.height = imageSize.getHeight();
-                            viewHolder.leftImage.setLayoutParams(imageLP);
-                            activity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    viewHolder.leftImage.setImageBitmap(bitmap);
-                                }
-                            });
-                            showImage(viewHolder.leftImage,R.drawable.message_left);
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();*/
-
             }
         }else if(chat.getType()==Chat.TYPE_SENT){
             if(chat.getImage()==null){
@@ -349,155 +217,17 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
                 viewHolder.rightChat.setVisibility(View.GONE);
                 viewHolder.leftImage.setVisibility(View.GONE);
                 viewHolder.rightImage.setVisibility(View.VISIBLE);
-                /*Glide.with(mContext).load(chat.getImage())//内部有子线程
-                        .placeholder(R.drawable.zhanwei)
-                        .into(viewHolder.rightImage);*/
-                /*class GlideTask extends AsyncTask<Void,Void,Boolean>{
-                        @Override
-                        protected Boolean doInBackground(Void...params){
-                            Log.d("SENT","加载中");
-                            return true;
-                        }
-                        @Override
-                        protected void onPostExecute(Boolean result){
-                            SimpleTarget target =new SimpleTarget<Bitmap>() {
-                                @Override
-                                public void onResourceReady(final Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                                    //回调到主线程中
-                                    ImageSize imageSize = BitmapUtils.getImageSize(resource);
-                                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                    resource.compress(Bitmap.CompressFormat.JPEG, 10, baos);//数字最大为100,100为不压缩
-                                    byte[] bytes = baos.toByteArray();
-                                    final Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                    final ViewGroup.LayoutParams imageLP = viewHolder.rightImage.getLayoutParams();
-                                    imageLP.width = imageSize.getWidth();
-                                    imageLP.height = imageSize.getHeight();
-                                    viewHolder.rightImage.setLayoutParams(imageLP);
-                                    viewHolder.rightImage.setImageBitmap(bm);
-                                    //showImage(viewHolder.rightImage,R.drawable.message_right);
-                                }
-                            };
-                            Glide.with(mContext).load(chat.getImage())//内部有子线程
-                                    .asBitmap()
-                                    .placeholder(R.drawable.zhanwei)//设置图片占位符
-                                    .into(target);
-                        }
-                    }
-                GlideTask glideTask=new GlideTask();
-                viewHolder.rightImage.setTag(R.id.tag_ImageRight,glideTask);
-                glideTask.execute();
-                //glide使用override时，可能会导致列表无法到最后一个元素的位置
-                //glide还需要多研究，可以考虑。get
-                */
                 Log.d(position+" width"," "+chat.getImageWidth());
                 Log.d(position+" height"," "+chat.getImageHeight());
-                if (chat.getImageWidth()==0&&chat.getImageHeight()==0){
-                    SimpleTarget target =new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(final Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-
-
-                            //回调到主线程中
-                        /*ImageSize imageSize = BitmapUtils.getImageSize(resource);
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        resource.compress(Bitmap.CompressFormat.JPEG, 10, baos);//数字最大为100,100为不压缩
-                        byte[] bytes = baos.toByteArray();
-                        final Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                        final ViewGroup.LayoutParams imageLP = viewHolder.rightImage.getLayoutParams();
-                        imageLP.width = imageSize.getWidth();
-                        imageLP.height = imageSize.getHeight();
-                        viewHolder.rightImage.setLayoutParams(imageLP);
-                        viewHolder.rightImage.setImageBitmap(bm);*/
-                            ImageSize imageSize = BitmapUtils.getImageSize(resource);
-                            final ViewGroup.LayoutParams imageLP = viewHolder.rightImage.getLayoutParams();
-                            imageLP.width = imageSize.getWidth();
-                            imageLP.height = imageSize.getHeight();
-                            //new Thread(new Runnable() {
-                                //@Override
-                                //public void run() {
-                            mChatList.get(position).setImageWidth(imageLP.width);//要用position来明确是哪个chat
-                            mChatList.get(position).setImageHeight(imageLP.height);
-                            //chat.setImageWidth(imageLP.width);不能用这个的原因是，在回调函数中，进程跟不上主线程
-                            //所以chat可能指的是null
-                            //chat.setImageHeight(imageLP.height);
-                            Log.d("if position"+position+" width:"," "+mChatList.get(position).getImageHeight());
-                            Log.d("if position"+position+" Height:"," "+mChatList.get(position).getImageHeight());
-                                //}
-                            //}).start();
-                            viewHolder.rightImage.setLayoutParams(imageLP);
-                            viewHolder.rightImage.setImageBitmap(resource);
-                            //showImage(viewHolder.rightImage,R.drawable.message_right,viewHolder);
-                        }
-                    };
-                    Glide.with(mContext).load(chat.getImage())//内部有子线程
-                            .asBitmap()
-                            .into(target);
-                }else {
-                    Log.d("chat.getImageWidth();","!!!!!!!!");
-                    final ViewGroup.LayoutParams imageLP = viewHolder.rightImage.getLayoutParams();
-                    imageLP.width = chat.getImageWidth();
-                    imageLP.height = chat.getImageHeight();
-                    Log.d("else position"+position+" width:"," "+chat.getImageWidth());
-                    Log.d("else position"+position+" Height:"," "+chat.getImageHeight());
-                    viewHolder.rightImage.setLayoutParams(imageLP);
-                    Glide.with(mContext).load(chat.getImage())//内部有子线程
-                            .into(viewHolder.rightImage);
-                    //showImage(viewHolder.rightImage,R.drawable.message_right,viewHolder);
-                }
-
-
-                    /*ImageSize imageSize =BitmapUtils.getImageSizeNew(chat.getImage());
+                Log.d("chat.getImageWidth();","!!!!!!!!");
                 final ViewGroup.LayoutParams imageLP = viewHolder.rightImage.getLayoutParams();
-                imageLP.width = imageSize.getWidth();
-                imageLP.height = imageSize.getHeight();
-                viewHolder.rightImage.setLayoutParams(imageLP);*/
-                //new Thread(new Runnable() {
-                //@Override
-                //public void run() {
-                //activity.runOnUiThread(new Runnable() {
-                //@Override
-                //public void run() {
-
-                /*Glide.with(mContext).load(chat.getImage())//内部有子线程
-                        .into(viewHolder.rightImage);//直接使用Glide和使用target的加载速度不同
-                //loadIntoUseFitWidth(mContext, chat.getImage(), R.drawable.apple_pic, viewHolder.rightImage);
-                                //直接加载在快速翻动列表时加载速度几乎不留痕迹
-                                //Glide不能运行于子线程中
-                showImage(viewHolder.rightImage,R.drawable.message_right);*/
-                // }
-                //});
-                // }
-                // }).start();
-
-                /*new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try{
-                            final Bitmap bitmap=Glide.with(mContext).load(chat.getImage())//内部有子线程
-                                    .asBitmap()
-                                    .centerCrop()
-                                    .into(500,500)
-                                    .get();
-                            //这里into是分辨率
-                            ImageSize imageSize = BitmapUtils.getImageSize(bitmap);
-                            final ViewGroup.LayoutParams imageLP = viewHolder.rightImage.getLayoutParams();
-                            imageLP.width = imageSize.getWidth();
-                            imageLP.height = imageSize.getHeight();
-                            viewHolder.rightImage.setLayoutParams(imageLP);
-                            activity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    viewHolder.rightImage.setImageBitmap(bitmap);
-                                }
-                            });
-                            showImage(viewHolder.rightImage,R.drawable.message_right);
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();*/
-
-
+                imageLP.width = chat.getImageWidth();
+                imageLP.height = chat.getImageHeight();
+                Log.d("else position"+position+" width:"," "+chat.getImageWidth());
+                Log.d("else position"+position+" Height:"," "+chat.getImageHeight());
+                viewHolder.rightImage.setLayoutParams(imageLP);
+                Glide.with(mContext).load(chat.getImage())//内部有子线程
+                        .into(viewHolder.rightImage);
             }
         }
     }

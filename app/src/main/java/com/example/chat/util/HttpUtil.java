@@ -1,11 +1,16 @@
 package com.example.chat.util;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.example.chat.Friend;
 import com.example.chat.gson.UserAccount;
+import com.example.chat.image.BitmapUtils;
+import com.example.chat.image.ImageSize;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +32,7 @@ import okio.BufferedSink;
  */
 
 public class HttpUtil {
-    public static final String localIP="172.18.60.90";
+    public static final String localIP="192.168.1.101";
     public static void sendOkHttpRequest(String address,okhttp3.Callback callback){
         OkHttpClient client=new OkHttpClient();
         Request request=new Request.Builder().url(address).build();
@@ -163,22 +168,35 @@ public class HttpUtil {
         client.newCall(request).enqueue(callback);
     }
 
-    public static void sendOkHttpMultipart(String address, File mfile, okhttp3.Callback callback){
+    public static void sendOkHttpMultipart(String address, String imagePath, okhttp3.Callback callback){
+        File mfile=new File(imagePath);
+        //ImageSize imageSize=null;
         final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
         List<File>fileList=new ArrayList<>();
         fileList.add(mfile);
         MultipartBody.Builder mbody=new MultipartBody.Builder()
                 .setType(MultipartBody.FORM);
         int i=0;
+        /*try {
+            FileInputStream fis = new FileInputStream(imagePath);
+            Bitmap bitmap= BitmapFactory.decodeStream(fis);
+            imageSize = BitmapUtils.getImageSize(bitmap);
+        }catch (Exception e){
+            e.printStackTrace();
+        }*/
         for(File file:fileList){
             Log.d("sendOkHttpMultipart","for!!!!!!!!!");
             if(file.exists()){
                 Log.d("sendOkHttpMultipart","file.exists()!!!!!!!!");
                 Log.i("imageName:",file.getName());//经过测试，此处的名称不能相同，如果相同，只能保存最后一个图片，不知道那些同名的大神是怎么成功保存图片的。
                 mbody.addFormDataPart("t",file.getName(),RequestBody.create(MEDIA_TYPE_PNG,file));
+                //mbody.addFormDataPart("imageWidth",String.valueOf(imageSize.getWidth()));
+                //mbody.addFormDataPart("imageHeight",String.valueOf(imageSize.getHeight()));
                 i++;
             }
         }
+        //Log.d("aaaaa",String.valueOf(imageSize.getWidth()));
+        //Log.d("bbbbb",String.valueOf(imageSize.getHeight()));
         OkHttpClient client=new OkHttpClient();
         RequestBody requestBody=mbody.build();
         RequestBody requestBodyx=new FormBody.Builder()

@@ -111,6 +111,8 @@ public class ChatService extends Service {
                             Intent intent=new Intent("com.example.chat.service.message");
                             intent.putExtra("Type","imagePath");
                             intent.putExtra("imagePath",ChatService.this.jsonObject.getString("ImagePath"));
+                            intent.putExtra("imageWidth",ChatService.this.jsonObject.getString("ImageWidth"));
+                            intent.putExtra("imageHeight",ChatService.this.jsonObject.getString("ImageHeight"));
                             localBroadcastManager.sendBroadcast(intent);//通过广播把收到的消息传到chatActivity
                         }
 

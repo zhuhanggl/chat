@@ -213,7 +213,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                 break;
             case R.id.test:
                 HttpUtil.sendOkHttpMultipart("http://" + HttpUtil.localIP + ":8080/okhttp3_test/FileServlet"
-                        , new File("/sdcard/t.png"), new Callback() {
+                        , "/sdcard/t.png", new Callback() {
                             @Override
                             public void onResponse(Call call, Response response) throws IOException {
 
