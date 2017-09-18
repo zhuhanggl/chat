@@ -1,77 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_gravity="bottom"
     android:background="#fff">
-    <android.support.v4.widget.DrawerLayout
-        android:id="@+id/drawer_layout"
+    <LinearLayout
+        android:orientation="vertical"
+        android:id="@+id/activity_chat_layout"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_width="match_parent">
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <RelativeLayout
+        android:layout_gravity="bottom">
+        <android.support.v4.widget.DrawerLayout
+            android:id="@+id/drawer_layout"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent">
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary">
-                <Button
-                    android:id="@+id/back_FriendChooseActivity"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="20dp"
-                    android:layout_alignParentLeft="true"
-                    android:background="@drawable/ic_back"/>
-                <TextView
-                    android:id="@+id/friend_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_toRightOf="@id/back_FriendChooseActivity"
-                    android:layout_marginLeft="20dp"
-                    android:textSize="20sp"
-                    android:textColor="#fff" /><!--这里friend_name和别的xml文件中的id重了-->
-            </RelativeLayout>
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/chat_recycler_view"
+                android:layout_height="match_parent">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="?attr/colorPrimary">
+                    <Button
+                        android:id="@+id/back_FriendChooseActivity"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="20dp"
+                        android:layout_alignParentLeft="true"
+                        android:background="@drawable/ic_back"/>
+                    <TextView
+                        android:id="@+id/friend_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toRightOf="@id/back_FriendChooseActivity"
+                        android:layout_marginLeft="20dp"
+                        android:textSize="20sp"
+                        android:textColor="#fff" /><!--这里friend_name和别的xml文件中的id重了-->
+                </RelativeLayout>
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/chat_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <EditText
+                        android:id="@+id/sent_text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="8"/>
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2">
+                        <Button
+                            android:id="@+id/sent_button"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="sent"
+                            android:background="#fff"/>
+                        <Button
+                            android:id="@+id/other_button"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="other"
+                            android:background="#f00"/>
+                    </RelativeLayout>
+                </LinearLayout>
+            </LinearLayout>
+            <fragment
+                android:id="@+id/friend_list_fragment"
+                android:name="com.example.chat.FriendListFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <EditText
-                    android:id="@+id/sent_text"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="8"/>
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2">
-                    <Button
-                        android:id="@+id/sent_button"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="sent"
-                        android:background="#fff"/>
-                    <Button
-                        android:id="@+id/other_button"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="other"
-                        android:background="#f00"/>
-                </RelativeLayout>
-            </LinearLayout>
-        </LinearLayout>
-        <fragment
-            android:id="@+id/friend_list_fragment"
-            android:name="com.example.chat.FriendListFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="start"/><!--fragment的id号和前面相同没事-->
-    </android.support.v4.widget.DrawerLayout>
+                android:layout_gravity="start"/><!--fragment的id号和前面相同没事-->
+        </android.support.v4.widget.DrawerLayout>
+    </LinearLayout>
 </FrameLayout><!--最大的布局一般都用Linear，子布局会用到Relative-->
 

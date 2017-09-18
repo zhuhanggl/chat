@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.icu.text.LocaleDisplayNames;
 import android.net.Uri;
 import android.os.Build;
@@ -33,8 +34,10 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -87,6 +90,11 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
     private LocalBroadcastManager localBroadcastManager;
     private ChatService.ChatBinder chatBinder;
     private String imagePath;
+    private LinearLayout linearLayout;
+    private int layoutWidth;
+    private int layoutHeight;
+    private ViewGroup.LayoutParams imageLP;
+
     private ServiceConnection connection=new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -100,6 +108,24 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
 
         }
     };
+    private void fix(){//固定用，防止状态栏重新出现时recyclerview的item回不到最低端
+        int statusBarHeight1 = -1;
+//获取status_bar_height资源的ID
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            //根据资源ID获取响应的尺寸值
+            statusBarHeight1 = getResources().getDimensionPixelSize(resourceId);
+        }
+        linearLayout=(LinearLayout) findViewById(R.id.activity_chat_layout);
+        imageLP=linearLayout.getLayoutParams();
+        Rect outRect1 = new Rect();
+        getWindow().getDecorView().getWindowVisibleDisplayFrame(outRect1);
+        imageLP.width= DrawerLayout.LayoutParams.MATCH_PARENT;
+        imageLP.height=outRect1.height()-statusBarHeight1;
+        Log.d("dasdas",""+outRect1.height());
+        Log.d("ssssadas",""+statusBarHeight1);
+        linearLayout.setLayoutParams(imageLP);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,6 +135,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         userAccount=(UserAccount)intent.getSerializableExtra("user");
         //逻辑顺序还是有的！！！
         setContentView(R.layout.activity_chat);
+        fix();
         sentText=(EditText)findViewById(R.id.sent_text);
         sentText.setText("");
         otherButton=(Button)findViewById(R.id.other_button);
@@ -117,14 +144,6 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
         sentButton.setVisibility(View.INVISIBLE);
         otherButton.setOnClickListener(this);
         sentButton.setOnClickListener(this);
-        /*sentText.setFocusable(false);
-        sentText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                chatAdapter.notifyItemInserted(mChatList.size()-1);//动态过程中要注意刷新！！
-                recyclerView.scrollToPosition(mChatList.size()-1);
-            }
-        });*/
         sentText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -413,7 +432,11 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener{
             }
         }
     }
+    @Override
+    protected void onResume(){
+        super.onResume();
 
+    }
     private void chatInit(){
         HttpUtil.sendOkHttpChatInit("http://" + HttpUtil.localIP + ":8080/okhttp3_test/LoginServlet"
                 , userAccount, friend, new Callback() {

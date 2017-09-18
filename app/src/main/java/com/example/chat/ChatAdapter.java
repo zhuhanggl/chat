@@ -1,6 +1,7 @@
 package com.example.chat;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +22,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -38,6 +40,7 @@ import com.bumptech.glide.util.Util;
 import com.example.chat.gson.UserAccount;
 import com.example.chat.image.BitmapUtils;
 import com.example.chat.image.ImageSize;
+import com.example.chat.service.ChatService;
 import com.example.chat.util.HttpUtil;
 import com.example.chat.util.Utility;
 
@@ -48,14 +51,13 @@ import java.util.logging.LogRecord;
 import java.util.logging.LoggingMXBean;
 
 import static android.support.v7.recyclerview.R.attr.layoutManager;
+import static java.security.AccessController.getContext;
 
 /**
  * Created by Administrator on 2017/7/19.
  */
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
-    final static int widthMax=400;
-    final static int heightMax=400;
     private Chat chat=null;
     private List<Chat> mChatList;
     private Context mContext;
@@ -85,7 +87,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
         }
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder{//viewholder相当于列表中对应的子项
+    static class ViewHolder extends RecyclerView.ViewHolder {//viewholder相当于列表中对应的子项
         TextView friendName;
         ImageView friendAvatarId;
         TextView leftChat;
@@ -129,10 +131,28 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
         if (mContext==null){
             mContext=parent.getContext();
         }
-        viewholder.chatview.setOnClickListener(new View.OnClickListener() {//item的宽度需要为matchparent
+        viewholder.leftImage.setOnClickListener(new View.OnClickListener() {//item的宽度需要为matchparent
             //这样点击空白的地方也可以开启活动
             @Override
             public void onClick(View view) {
+                int position=viewholder.getAdapterPosition();//这里获取位置的方法重要！！
+                Chat imageChat=mChatList.get(position);
+                Intent intent=new Intent(parent.getContext(), ImageActivity.class);
+                intent.putExtra("imagePath",imageChat.getImage());
+                mContext.startActivity(intent,ActivityOptions
+                        .makeSceneTransitionAnimation(activity,view,"share").toBundle());//共享元素动画
+            }
+        });//该方法另一目的是创建点击事件
+        viewholder.rightImage.setOnClickListener(new View.OnClickListener() {//item的宽度需要为matchparent
+            //这样点击空白的地方也可以开启活动
+            @Override
+            public void onClick(View view) {
+                int position=viewholder.getAdapterPosition();//这里获取位置的方法重要！！
+                Chat imageChat=mChatList.get(position);
+                Intent intent=new Intent(parent.getContext(), ImageActivity.class);
+                intent.putExtra("imagePath",imageChat.getImage());
+                mContext.startActivity(intent,ActivityOptions
+                        .makeSceneTransitionAnimation(activity,view,"share").toBundle());//共享元素动画
             }
         });//该方法另一目的是创建点击事件
         return viewholder;//主要目的是返回一个viewholder给onBindViewHolder，这个viewholder由之前自定义的
@@ -142,25 +162,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
         //文字和图片的填入
         chat=mChatList.get(position);
         Log.d("position","position="+position);
-        /*if (chat.getViewHolder()!=null){
-            viewHolder.equals(chat.getViewHolder());
-        }else{
-
-        }*/
-            /*ViewGroup.LayoutParams lp = viewHolder.leftImage.getLayoutParams();
-        lp.width = 150;//RecyclerView.LayoutParams.WRAP_CONTENT;
-        lp.height = 150;//RecyclerView.LayoutParams.WRAP_CONTENT;
-        viewHolder.leftImage.setLayoutParams(lp);
-        viewHolder.leftImage.setMaxWidth(widthMax);
-        viewHolder.leftImage.setMaxHeight(heightMax);
-
-        ViewGroup.LayoutParams lp1 = viewHolder.rightImage.getLayoutParams();
-        lp1.width = 150;//RecyclerView.LayoutParams.WRAP_CONTENT;
-        lp1.height = 150;//RecyclerView.LayoutParams.WRAP_CONTENT;
-        viewHolder.rightImage.setLayoutParams(lp1);
-        viewHolder.rightImage.setMaxWidth(widthMax);
-        viewHolder.rightImage.setMaxHeight(heightMax);*/
-
         if (chat.getType()==Chat.TYPE_RECEIVED){
             if(chat.getImage()==null){
                 Log.d("RECEIVE","文字加载中");
@@ -192,6 +193,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
                 Log.d("else position"+position+" Height:"," "+chat.getImageHeight());
                 viewHolder.leftImage.setLayoutParams(imageLP);
                 Glide.with(mContext).load(chat.getImage())//内部有子线程
+                        //.placeholder(R.mipmap.ic_launcher)使用占位图会导致一直为占位图
+                        .thumbnail( 0.1f )
                         .into(viewHolder.leftImage);
             }
         }else if(chat.getType()==Chat.TYPE_SENT){
@@ -227,6 +230,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
                 Log.d("else position"+position+" Height:"," "+chat.getImageHeight());
                 viewHolder.rightImage.setLayoutParams(imageLP);
                 Glide.with(mContext).load(chat.getImage())//内部有子线程
+                        //.placeholder(R.drawable.apple_pic)使用占位图会导致一直为占位图
+                        .thumbnail( 0.1f )
                         .into(viewHolder.rightImage);
             }
         }
@@ -248,159 +253,5 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
         if(holder.leftImage.getDrawable()!=null){
             holder.leftImage.setImageResource(R.drawable.x);
         }
-        /*AsyncTask asyncTaskLeft = (AsyncTask) holder.leftImage.getTag(R.id.tag_ImageLeft);
-        AsyncTask asyncTaskRight = (AsyncTask) holder.rightImage.getTag(R.id.tag_ImageRight);
-        if (asyncTaskLeft!=null){
-            Log.d("asyncTaskLeft!=null","!!!!!!!!!");
-            asyncTaskLeft.cancel(true);
-        }
-        if(asyncTaskRight!=null){
-            Log.d("asyncTaskRight!=null","!!!!!!!!!");
-            asyncTaskRight.cancel(true);
-        }*/
-    }
-
-    private Handler setPicHandler = new Handler() {//import android.os.Handler
-        @Override
-        public void handleMessage(android.os.Message msg) {
-            //Log.d("handleMessage","!!!!!!!!");
-            Bean bean=(Bean)msg.obj;
-            showImage(bean.getImageView(), msg.arg1,bean.getViewHolder());
-        }
-    };
-
-    private void showImage(final ImageView imageView, final int pointNineImage,final ChatAdapter.ViewHolder viewHolder) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                activity.runOnUiThread(new Runnable() {//runOnUiThread如果当前线程是UI线程,那么行动是立即执行。
-                    // 如果当前线程不是UI线程,操作是发布到事件队列的UI 线程，UI线程就是主线程
-                    @Override
-                    public void run() {
-                        imageView.setDrawingCacheEnabled(true);
-                        imageView.buildDrawingCache();
-                        Bitmap bitmap_bg = BitmapFactory.decodeResource(activity.getResources(), pointNineImage);
-                        Bitmap bitmap_in = imageView.getDrawingCache();
-                        if (bitmap_bg != null && bitmap_in != null) {
-                            //Log.d("showImage if","!!!!!!!!!");
-                            final Bitmap bp = getRoundCornerImage(imageView.getWidth(), imageView.getHeight(), bitmap_bg, bitmap_in);
-                            final Bitmap bp2 = getShardImage(imageView.getWidth(), imageView.getHeight(), bitmap_bg, bp);
-                            imageView.setImageBitmap(bp2);
-
-                        } else {
-                            //Log.d("showImage else","!!!!!!!!!");
-                            //如果照片没有设置好，再发通知重新设置，直到照片设置完成
-                            final android.os.Message message = new android.os.Message();
-                            Bean bean=new Bean();//很重要！！！没有对象组就自己创造！！！
-                            bean.setViewHolder(viewHolder);
-                            bean.setImageView(imageView);
-                            message.obj = bean;
-                            message.arg1 = pointNineImage;
-                            //showImage(imageView,pointNineImage);
-                            //new Thread(new Runnable() {
-                                //@Override
-                                //public void run() {
-                            //Log.d("showImage else Thread","!!!!!!!!!");
-                            setPicHandler.sendMessageAtTime(message, 100);//由于有时间，所以必须放在子线程中
-                            //可能游戏与操作是发布到事件队列的UI 线程，所以这里这个耗时不会出现卡的情况
-                            //}
-                            //}).start();//!!!!!!!!!!!!!!!!start别忘了！！！
-                        }
-                        imageView.setDrawingCacheEnabled(false);
-                    }
-                });
-            }
-        }).start();
-    }
-
-
-
-
-    public Bitmap getRoundCornerImage(int width, int height, Bitmap bitmap_bg, Bitmap bitmap_in) {
-        Bitmap roundConcerImage = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(roundConcerImage);
-        Paint paint = new Paint();
-        Rect rect = new Rect(0, 0, width, height);
-        Rect rectF = new Rect(0, 0, bitmap_in.getWidth(), bitmap_in.getHeight());
-        paint.setAntiAlias(true);
-        NinePatch patch = new NinePatch(bitmap_bg, bitmap_bg.getNinePatchChunk(), null);
-        patch.draw(canvas, rect);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(bitmap_in, rectF, rect, paint);
-        return roundConcerImage;
-    }
-
-    public Bitmap getShardImage(int width, int height, Bitmap bitmap_bg, Bitmap bitmap_in) {
-        Bitmap roundConcerImage = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(roundConcerImage);
-        Paint paint = new Paint();
-        Rect rect = new Rect(0, 0, width, height);
-        paint.setAntiAlias(true);
-        NinePatch patch = new NinePatch(bitmap_bg, bitmap_bg.getNinePatchChunk(), null);
-        patch.draw(canvas, rect);
-        Rect rect2 = new Rect(1, 1, width - 1, height - 1);
-        canvas.drawBitmap(bitmap_in, rect, rect2, paint);
-        return roundConcerImage;
-    }
-
-    public static void loadIntoUseFitWidth(Context context, final String imageUrl, int errorImageId, final ImageView imageView) {
-        Glide.with(context)
-                .load(imageUrl)
-                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                .listener(new RequestListener<String, GlideDrawable>() {
-                    @Override
-                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                        if (imageView == null) {
-                            return false;
-                        }
-                        if (imageView.getScaleType() != ImageView.ScaleType.FIT_XY) {
-                            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                        }
-                        ViewGroup.LayoutParams params = imageView.getLayoutParams();
-                        int vw = imageView.getWidth() - imageView.getPaddingLeft() - imageView.getPaddingRight();
-                        float scale = (float) vw / (float) resource.getIntrinsicWidth();
-                        int vh = Math.round(resource.getIntrinsicHeight() * scale);
-                        params.height = vh + imageView.getPaddingTop() + imageView.getPaddingBottom();
-                        imageView.setLayoutParams(params);
-                        return false;
-                    }
-                })
-                .placeholder(errorImageId)
-                .error(errorImageId)
-                .into(imageView);
     }
 }
-
-
-/*Glide.with(mContext).load(chat.getImage())//内部有子线程
-        .asBitmap()
-        .into(new SimpleTarget<Bitmap>() {
-@Override
-public void onResourceReady(final Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-        activity.runOnUiThread(new Runnable() { //  使用这种回调的方式会使在列表中滚动的时候加载变慢，可能是
-        //这种方法没有生成缓存的缘故,旅游回来后接着用这个方法进行尝试
-@Override
-public void run() {
-        ImageSize imageSize = BitmapUtils.getImageSize(resource);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        resource.compress(Bitmap.CompressFormat.JPEG, 10, baos);
-        byte[] bytes = baos.toByteArray();
-        Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-        //ViewGroup.LayoutParams imageLP = viewHolder.leftImage.getLayoutParams();
-        //imageLP.width = imageSize.getWidth();
-        //imageLP.height = imageSize.getHeight();
-        //viewHolder.leftImage.setLayoutParams(imageLP);
-        viewHolder.leftImage.setImageBitmap(bm);
-        showImage(viewHolder.leftImage,R.drawable.message_left);
-        //chatActivity.recyclerView.scrollToPosition(mChatList.size()-1);//之前无法到底的原因是
-        //线程快慢的问题！！
-        //不能在这里，否则每次滚到这里就会立即回到最底部
-        }
-        });
-        }
-        });*/
